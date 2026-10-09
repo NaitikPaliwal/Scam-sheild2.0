@@ -41,7 +41,7 @@
     ::-webkit-scrollbar-thumb { background: #3f3f46; }
     ::-webkit-scrollbar-thumb:hover { background: #ff3300; }
     body { background-color: #09090b; color: #d4d4d8; margin: 0; }
-    button:focus, textarea:focus { outline: none; }
+    button:focus, textarea:focus, input:focus { outline: none; }
   </style>
 </head>
 <body class="min-h-screen font-sans antialiased flex flex-col selection:bg-accent selection:text-white">
@@ -106,15 +106,24 @@
     <div class="flex flex-col p-5 gap-5">
       <div class="flex justify-between items-end border-b border-gray-800 pb-3">
         <h2 class="text-sm font-mono text-white uppercase tracking-widest">Offer Ingestion Console</h2>
-        <span class="text-[10px] font-mono text-accent uppercase tracking-widest flex items-center gap-2">
-          <span class="w-1.5 h-1.5 bg-accent block animate-pulse"></span>
-          Scanner Ready
+        <span id="consoleStatusBadge" class="text-[10px] font-mono text-accent uppercase tracking-widest flex items-center gap-2">
+          <span id="consoleStatusDot" class="w-1.5 h-1.5 bg-accent block animate-pulse"></span>
+          <span id="consoleStatusText">SCANNER READY</span>
         </span>
+      </div>
+
+      <!-- Offer Link Input -->
+      <div class="flex flex-col gap-1.5">
+        <label for="offerLink" class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">OFFER LINK (OPTIONAL)</label>
+        <div class="relative border border-gray-800 group focus-within:border-gray-500 transition-colors bg-gray-950">
+          <input id="offerLink" type="url" oninput="handleInputChange()" placeholder="https://company.com/careers/data-analyst-intern" class="w-full bg-gray-950 text-gray-300 font-mono text-[11px] p-3 leading-relaxed focus:outline-none" />
+        </div>
+        <div id="linkErrorDisplay" class="hidden text-[10px] font-mono text-accent uppercase tracking-widest pt-0.5"></div>
       </div>
 
       <!-- Textarea -->
       <div class="relative flex-grow flex flex-col border border-gray-800 group focus-within:border-gray-500 transition-colors">
-        <textarea id="offerInput" oninput="handleInputChange()" placeholder="Paste an offer letter, email, WhatsApp or Telegram message here..." class="w-full flex-grow min-h-[340px] bg-gray-950 text-gray-300 font-mono text-[11px] leading-relaxed p-4 resize-none"></textarea>
+        <textarea id="offerInput" oninput="handleInputChange()" placeholder="Paste an offer letter, email, WhatsApp or Telegram message here..." class="w-full flex-grow min-h-[260px] bg-gray-950 text-gray-300 font-mono text-[11px] leading-relaxed p-4 resize-none"></textarea>
         <div class="absolute bottom-3 right-4 text-[10px] font-mono text-gray-500 tracking-widest bg-gray-950 pl-2">
           <span id="charCount">0 CHR</span> <span class="mx-1">|</span> <span id="wordCount">0 WRD</span>
         </div>
@@ -137,7 +146,7 @@
             <span class="text-gray-600" id="phase1Badge">STANDBY</span>
           </div>
           <div class="flex justify-between items-center" id="phase2Card">
-            <span class="text-gray-500" id="phase2Label">02 SIGNAL CHECK <span class="text-gray-700 ml-2 hidden sm:inline">(MCA & WHOIS)</span></span>
+            <span class="text-gray-500" id="phase2Label">02 SIGNAL CHECK <span class="text-gray-700 ml-2 hidden sm:inline">(MCA & WHOIS/RDAP)</span></span>
             <span class="text-gray-600" id="phase2Badge">STANDBY</span>
           </div>
           <div class="flex justify-between items-center" id="phase3Card">
@@ -150,8 +159,8 @@
       <!-- Terminal -->
       <div class="border border-gray-800 bg-gray-950 p-3 h-28 overflow-y-auto font-mono text-[10px] tracking-widest text-gray-500 flex flex-col gap-1.5" id="terminalLog">
         <div>> Scam Shield heuristic engine v2.4 initialized.</div>
-        <div>> MCA Corporate Master Database connector online.</div>
-        <div class="text-white">> Ready. Paste an offer to evaluate threats.</div>
+        <div>> Link verification & RDAP telemetry connector online.</div>
+        <div class="text-white">> Ready. Provide an offer link, paste offer text, or both to evaluate threats.</div>
       </div>
     </div>
 
@@ -176,7 +185,7 @@
         </div>
         
         <div id="verdictAdvisory" class="text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed">
-          Paste an offer letter, email or message into the console and run a scan to see Scam Shield classify threat indicators in real time.
+          Provide an offer link, paste an offer letter/message into the console, and run a scan to classify threat indicators in real time.
         </div>
 
         <!-- Action Boxes -->
@@ -218,12 +227,23 @@
 
       <!-- Flags -->
       <div class="border border-gray-800 p-5 flex-grow flex flex-col">
-        <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
+        <div class="flex justify-between items-center mb-3 border-b border-gray-800 pb-2">
           <span class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Forensic Indicators</span>
           <span id="flaggedCount" class="text-[10px] font-mono text-white tracking-widest">0 FLAGS</span>
         </div>
+
+        <!-- Telemetry Header Line -->
+        <div id="telemetryHeaderLine" class="hidden text-[10px] font-mono text-gray-400 border-b border-gray-800 pb-2 mb-3 tracking-widest"></div>
+
+        <!-- Unreadable Notice Line -->
+        <div id="unreadableNoticeLine" class="hidden text-[11px] text-gray-500 font-sans italic border-b border-gray-800 pb-2 mb-3"></div>
+
         <div id="flaggedTagsContainer" class="flex flex-col gap-2">
           <div class="text-[11px] text-gray-600 font-sans italic">No indicators flagged. Run a scan to trigger multi-vector analysis.</div>
+        </div>
+
+        <div class="text-[10px] font-mono text-gray-500 pt-3 border-t border-gray-800 mt-4">
+          Heuristic analysis, not a guarantee. If in doubt, confirm with the company directly or report scams at 1930 / cybercrime.gov.in.
         </div>
       </div>
 
@@ -267,7 +287,7 @@
         </div>
         <div>
           <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">03 IDEATE</div>
-          <div class="pl-4 border-l border-gray-800 text-gray-400">A 3-phase client-side heuristic engine: Ingestion (normalizes links), Signal Check (MCA & WHOIS), Pattern AI (evaluates upfront fees and coercion).</div>
+          <div class="pl-4 border-l border-gray-800 text-gray-400">A multi-layered heuristic and domain telemetry engine: Ingestion (normalizes links & text), Signal Check (RDAP age, SSRF safety, lookalikes & MCA), Pattern AI (evaluates upfront fees and coercion).</div>
         </div>
         <div>
           <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">04 TEST</div>
@@ -303,6 +323,7 @@
     let soundEnabled = true;
     let isScanning = false;
     let audioCtx = null;
+    let lastScanData = null;
 
     function initAudio() {
       if (!audioCtx) {
@@ -365,19 +386,37 @@
     }
 
     function handleInputChange() {
+      const link = document.getElementById('offerLink').value.trim();
       const text = document.getElementById('offerInput').value;
+      
       document.getElementById('charCount').textContent = `${text.length} CHR`;
       const words = text.trim() ? text.trim().split(/\s+/).length : 0;
       document.getElementById('wordCount').textContent = `${words} WRD`;
-      if (!isScanning) document.getElementById('scanBtn').disabled = !text.trim();
+
+      if (!isScanning) {
+        document.getElementById('scanBtn').disabled = !(link || text.trim());
+      }
     }
 
     function resetConsole() {
       initAudio();
       playTone(300, 'sine', 0.1);
+      document.getElementById('offerLink').value = '';
       document.getElementById('offerInput').value = '';
-      handleInputChange();
       
+      const errDisplay = document.getElementById('linkErrorDisplay');
+      errDisplay.textContent = '';
+      errDisplay.classList.add('hidden');
+
+      const telemetryHeader = document.getElementById('telemetryHeaderLine');
+      telemetryHeader.textContent = '';
+      telemetryHeader.classList.add('hidden');
+
+      const unreadableNotice = document.getElementById('unreadableNoticeLine');
+      unreadableNotice.textContent = '';
+      unreadableNotice.classList.add('hidden');
+
+      handleInputChange();
       resetProtocolTracker();
       
       const vc = document.getElementById('verdictCard');
@@ -389,7 +428,7 @@
       document.getElementById('riskPercentageText').textContent = "--%";
       document.getElementById('riskPercentageText').className = "text-5xl font-mono text-white tracking-tighter leading-none";
       document.getElementById('verdictAdvisory').className = "text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed";
-      document.getElementById('verdictAdvisory').textContent = 'Paste an offer letter, email or message into the console and run a scan to see Scam Shield classify threat indicators in real time.';
+      document.getElementById('verdictAdvisory').textContent = 'Provide an offer link, paste an offer letter/message into the console, and run a scan to classify threat indicators in real time.';
       
       ['metricDomain', 'metricMCA', 'metricPayment', 'metricNLP'].forEach(id => {
         const el = document.getElementById(id);
@@ -405,7 +444,9 @@
       
       document.getElementById('scanTimestamp').textContent = "IDLE";
       document.getElementById('complaintDraftText').value = '';
-      
+      document.getElementById('consoleStatusText').textContent = "SCANNER READY";
+      lastScanData = null;
+
       logTelemetry('Console state re-initialized.');
     }
 
@@ -430,105 +471,44 @@
       log.scrollTop = log.scrollHeight;
     }
 
-    function runThreatScan() {
-      initAudio();
-      if (isScanning) return;
-      const text = document.getElementById('offerInput').value.trim();
-      if (!text) return;
-
-      isScanning = true;
-      const scanBtn = document.getElementById('scanBtn');
-      scanBtn.disabled = true;
-      scanBtn.textContent = "SCAN IN PROGRESS...";
-      
-      resetProtocolTracker();
-      document.getElementById('overallTrackerStatus').textContent = 'LAYER 1/3 ACTIVE';
-      
-      logTelemetry(`INITIALIZING SCAN: Analyzing ${text.length} characters...`);
-      
-      // Phase 1
-      document.getElementById('phase1Label').className = "text-white font-bold";
-      document.getElementById('phase1Badge').className = "text-white";
-      document.getElementById('phase1Badge').textContent = "PROCESSING...";
-      playScanBeep(1);
-
-      setTimeout(() => {
-        document.getElementById('phase1Label').className = "text-gray-400";
-        document.getElementById('phase1Badge').className = "text-gray-500";
-        document.getElementById('phase1Badge').textContent = "DONE (14ms)";
-        
-        document.getElementById('overallTrackerStatus').textContent = 'LAYER 2/3 ACTIVE';
-        document.getElementById('phase2Label').className = "text-white font-bold";
-        document.getElementById('phase2Badge').className = "text-white";
-        document.getElementById('phase2Badge').textContent = "QUERYING...";
-        playScanBeep(2);
-      }, 500);
-
-      setTimeout(() => {
-        document.getElementById('phase2Label').className = "text-gray-400";
-        document.getElementById('phase2Badge').className = "text-gray-500";
-        document.getElementById('phase2Badge').textContent = "MCA PENDING";
-        
-        document.getElementById('overallTrackerStatus').textContent = 'LAYER 3/3 ACTIVE';
-        document.getElementById('phase3Label').className = "text-white font-bold";
-        document.getElementById('phase3Badge').className = "text-white";
-        document.getElementById('phase3Badge').textContent = "SCORING...";
-        playScanBeep(3);
-      }, 1000);
-
-      setTimeout(() => {
-        document.getElementById('phase3Label').className = "text-gray-400";
-        document.getElementById('phase3Badge').className = "text-gray-500";
-        document.getElementById('phase3Badge').textContent = "CLASSIFIED";
-        
-        document.getElementById('overallTrackerStatus').textContent = 'ALL LAYERS RESOLVED';
-        
-        renderScanResults(text);
-        
-        isScanning = false;
-        scanBtn.textContent = "RUN MULTI-LAYER THREAT SCAN";
-        handleInputChange();
-      }, 1500);
-    }
-
-    // ---------- Heuristic engine ----------
+    // ---------- Heuristic Engine (Text) ----------
     const NEGATION_RE = /\b(?:no|not|never|zero|without|nor|don'?t|doesn'?t|won'?t|free of)\b/i;
     const AMOUNT = '(?:₹|rs\\.?|inr)\\s?\\d[\\d,]*(?:\\.\\d+)?';
 
     const PAYMENT_RULES = [
-      { label: 'Personal UPI ID', metric: 'PERSONAL UPI', weight: 30, re: /\b[\w.\-]{2,}@(?:upi|ybl|okaxis|okhdfcbank|oksbi|okicici|paytm|ibl|axl|apl|ptyes|ptaxis|pthdfc|ptsbi)\b/gi },
-      { label: 'Laptop / security fee', metric: 'LAPTOP/SECURITY FEE', weight: 30, re: /\b(?:laptop|equipment|security|caution)\s+(?:(?:verification|registration|refundable)\s+)?(?:fee|fees|deposit|deposits|charges?|money|amount)\b/gi },
-      { label: 'Upfront fee demand', metric: 'FEE DEMAND', weight: 30, re: /\b(?:registration|processing|training|onboarding|verification|joining|documentation|application|enrol?ment|kit|interview|certification)\s+(?:fee|fees|charges?|deposit|amount)\b/gi },
-      { label: 'Payment amount requested', metric: 'FEE DEMAND', weight: 25, re: new RegExp(`\\b(?:pay|deposit|transfer|send|remit)(?:\\s+(?:a|an|the|only|just|us|of|amount|sum|fee|refundable|immediately|now))*\\s*${AMOUNT}|${AMOUNT}\\s*(?:\\/-)?\\s*(?:\\w+\\s+){0,2}(?:fee|fees|deposit|charges?)\\b`, 'gi') },
-      { label: '"Refundable" money claim', metric: 'REFUNDABLE FEE', weight: 20, re: /\b(?:100%\s*|fully\s+)?refundable\b(?:\s+(?:\w+\s+){0,2}(?:fee|deposit|amount|charges?)\b)?/gi },
-      { label: 'Deposit request', metric: 'DEPOSIT DEMAND', weight: 20, re: /\b(?:security\s+deposit|deposit|advance\s+payment|token\s+amount|caution\s+money)\b/gi },
-      { label: 'Bank details shared', metric: 'BANK DETAILS', weight: 20, re: /\b(?:a\/c\s*(?:no\.?|number)?|account\s+(?:no\.?|number)|ifsc(?:\s+code)?|bank\s+(?:details|transfer|account)|neft|imps|rtgs)(?![\w])/gi },
-      { label: 'IFSC code shared', metric: 'BANK DETAILS', weight: 20, re: /\b[A-Z]{4}0[A-Z0-9]{6}\b/g },
-      { label: 'UPI / wallet payment channel', metric: 'UPI REQUEST', weight: 15, re: /\b(?:upi(?:\s+id)?|g\s?pay|google\s+pay|phone\s?pe|paytm|bhim)\b/gi }
+      { label: 'Personal UPI ID', metric: 'PERSONAL UPI', weight: 35, severity: 'high', re: /\b[\w.\-]{2,}@(?:upi|ybl|okaxis|okhdfcbank|oksbi|okicici|paytm|ibl|axl|apl|ptyes|ptaxis|pthdfc|ptsbi)\b/gi },
+      { label: 'Laptop / security fee', metric: 'LAPTOP/SECURITY FEE', weight: 35, severity: 'high', re: /\b(?:laptop|equipment|security|caution)\s+(?:(?:verification|registration|refundable)\s+)?(?:fee|fees|deposit|deposits|charges?|money|amount)\b/gi },
+      { label: 'Upfront fee demand', metric: 'FEE DEMAND', weight: 35, severity: 'high', re: /\b(?:registration|processing|training|onboarding|verification|joining|documentation|application|enrol?ment|kit|interview|certification)\s+(?:fee|fees|charges?|deposit|amount)\b/gi },
+      { label: 'Payment amount requested', metric: 'FEE DEMAND', weight: 30, severity: 'high', re: new RegExp(`\\b(?:pay|deposit|transfer|send|remit)(?:\\s+(?:a|an|the|only|just|us|of|amount|sum|fee|refundable|immediately|now))*\\s*${AMOUNT}|${AMOUNT}\\s*(?:\\/-)?\\s*(?:\\w+\\s+){0,2}(?:fee|fees|deposit|charges?)\\b`, 'gi') },
+      { label: '"Refundable" money claim', metric: 'REFUNDABLE FEE', weight: 25, severity: 'high', re: /\b(?:100%\s*|fully\s+)?refundable\b(?:\s+(?:\w+\s+){0,2}(?:fee|deposit|amount|charges?)\b)?/gi },
+      { label: 'Deposit request', metric: 'DEPOSIT DEMAND', weight: 25, severity: 'high', re: /\b(?:security\s+deposit|deposit|advance\s+payment|token\s+amount|caution\s+money)\b/gi },
+      { label: 'Bank details shared', metric: 'BANK DETAILS', weight: 20, severity: 'medium', re: /\b(?:a\/c\s*(?:no\.?|number)?|account\s+(?:no\.?|number)|ifsc(?:\s+code)?|bank\s+(?:details|transfer|account)|neft|imps|rtgs)(?![\w])/gi },
+      { label: 'IFSC code shared', metric: 'BANK DETAILS', weight: 20, severity: 'medium', re: /\b[A-Z]{4}0[A-Z0-9]{6}\b/g },
+      { label: 'UPI / wallet payment channel', metric: 'UPI REQUEST', weight: 18, severity: 'medium', re: /\b(?:upi(?:\s+id)?|g\s?pay|google\s+pay|phone\s?pe|paytm|bhim)\b/gi }
     ];
 
     const COERCION_RULES = [
-      { label: 'Guaranteed selection', metric: 'GUARANTEED JOB', weight: 20, re: /\b(?:guaranteed|100%|assured)\s+(?:job|selection|placement|offer|joining)\b|\b(?:job|placement|selection)\s+guarantee(?:d)?\b/gi },
-      { label: 'Selection without interview', metric: 'NO INTERVIEW', weight: 20, negatable: false, re: /\b(?:selected\s+)?(?:no|without(?:\s+(?:any|an?))?)\s+(?:interviews?|tests?|exams?|assessments?)\b(?:\s+(?:required|needed|rounds?))?|\bdirect\s+(?:selection|joining|hiring)\b|\bselected\s+directly\b/gi },
-      { label: 'Hard deadline', metric: 'DEADLINE PRESSURE', weight: 18, re: /\b(?:(?:confirm|pay|respond|reply|join|accept|register|complete|submit)\w*\s+(?:\w+\s+){0,4}?)?within\s+(?:the\s+next\s+)?\d+\s*(?:minutes?|mins?|hours?|hrs?)\b|\b(?:today\s+only|by\s+(?:today|tonight|end\s+of\s+(?:the\s+)?day|eod)|last\s+chance|before\s+midnight|expires?\s+(?:today|tonight))\b/gi },
-      { label: 'Cancellation threat', metric: 'CANCELLATION THREAT', weight: 18, re: /\b(?:offer|selection|seat|candidature|allotment|internship)\s+(?:will\s+be\s+|shall\s+be\s+|gets?\s+)?(?:cancel+ed|revoked|forfeited|withdrawn)\b|\b(?:immediate\s+)?cancellation\s+of\s+(?:your\s+)?(?:offer|selection|seat|candidature|internship)\b|\ballot(?:ted|ment)\s+to\s+(?:wait-?listed|other)\s+candidates\b/gi },
-      { label: 'Scarcity pressure', metric: 'LIMITED SEATS', weight: 15, re: /\b(?:limited\s+(?:seats?|slots?|positions?|openings?|vacanc(?:y|ies)|spots?)|only\s+\d+\s+(?:seats?|slots?|positions?|spots?)(?:\s+(?:left|remaining|available))?|(?:seats?|slots?)\s+(?:are\s+)?(?:filling\s+(?:up\s+)?fast|almost\s+full)|few\s+(?:seats?|slots?)\s+left|first\s+come,?\s+first\s+served?)\b/gi },
-      { label: 'Off-platform chat handoff', metric: 'CHAT HANDOFF', weight: 15, re: /\b(?:t\.me|wa\.me)\/\S+|\b(?:telegram|whatsapp)\s*(?:id|handle|number|no\.?)?\s*[:\-]?\s*@[\w]+|\b(?:share|send)\s+(?:the\s+)?(?:payment\s+|transaction\s+)?screenshot\b/gi },
-      { label: 'Urgency pressure', metric: 'URGENCY', weight: 12, re: /\b(?:urgent(?:ly)?|immediately|asap|right\s+away|act\s+(?:now|fast)|hurry|without\s+delay)\b/gi }
+      { label: 'Guaranteed selection', metric: 'GUARANTEED JOB', weight: 22, severity: 'medium', re: /\b(?:guaranteed|100%|assured)\s+(?:job|selection|placement|offer|joining)\b|\b(?:job|placement|selection)\s+guarantee(?:d)?\b/gi },
+      { label: 'Selection without interview', metric: 'NO INTERVIEW', weight: 22, severity: 'medium', negatable: false, re: /\b(?:selected\s+)?(?:no|without(?:\s+(?:any|an?))?)\s+(?:interviews?|tests?|exams?|assessments?)\b(?:\s+(?:required|needed|rounds?))?|\bdirect\s+(?:selection|joining|hiring)\b|\bselected\s+directly\b/gi },
+      { label: 'Hard deadline', metric: 'DEADLINE PRESSURE', weight: 20, severity: 'medium', re: /\b(?:(?:confirm|pay|respond|reply|join|accept|register|complete|submit)\w*\s+(?:\w+\s+){0,4}?)?within\s+(?:the\s+next\s+)?\d+\s*(?:minutes?|mins?|hours?|hrs?)\b|\b(?:today\s+only|by\s+(?:today|tonight|end\s+of\s+(?:the\s+)?day|eod)|last\s+chance|before\s+midnight|expires?\s+(?:today|tonight))\b/gi },
+      { label: 'Cancellation threat', metric: 'CANCELLATION THREAT', weight: 20, severity: 'medium', re: /\b(?:offer|selection|seat|candidature|allotment|internship)\s+(?:will\s+be\s+|shall\s+be\s+|gets?\s+)?(?:cancel+ed|revoked|forfeited|withdrawn)\b|\b(?:immediate\s+)?cancellation\s+of\s+(?:your\s+)?(?:offer|selection|seat|candidature|internship)\b|\ballot(?:ted|ment)\s+to\s+(?:wait-?listed|other)\s+candidates\b/gi },
+      { label: 'Scarcity pressure', metric: 'LIMITED SEATS', weight: 15, severity: 'medium', re: /\b(?:limited\s+(?:seats?|slots?|positions?|openings?|vacanc(?:y|ies)|spots?)|only\s+\d+\s+(?:seats?|slots?|positions?|spots?)(?:\s+(?:left|remaining|available))?|(?:seats?|slots?)\s+(?:are\s+)?(?:filling\s+(?:up\s+)?fast|almost\s+full)|few\s+(?:seats?|slots?)\s+left|first\s+come,?\s+first\s+served?)\b/gi },
+      { label: 'Off-platform chat handoff', metric: 'CHAT HANDOFF', weight: 15, severity: 'medium', re: /\b(?:t\.me|wa\.me)\/\S+|\b(?:telegram|whatsapp)\s*(?:id|handle|number|no\.?)?\s*[:\-]?\s*@[\w]+|\b(?:share|send)\s+(?:the\s+)?(?:payment\s+|transaction\s+)?screenshot\b/gi },
+      { label: 'Urgency pressure', metric: 'URGENCY', weight: 12, severity: 'low', re: /\b(?:urgent(?:ly)?|immediately|asap|right\s+away|act\s+(?:now|fast)|hurry|without\s+delay)\b/gi }
     ];
 
     const ZERO_FEE_RE = /\b(?:zero[-\s]fee|(?:do|does|will)\s+not\s+(?:charge|ask\s+for|collect|request)|never\s+(?:charges?|asks?|requests?|collects?))\b[^.,;\n]{0,60}/gi;
 
     const FREE_MAIL = ['gmail.com', 'googlemail.com', 'ymail.com', 'outlook.com', 'outlook.in', 'hotmail.com', 'live.com', 'msn.com', 'rediffmail.com', 'aol.com', 'protonmail.com', 'proton.me', 'icloud.com', 'mail.com', 'gmx.com', 'yandex.com'];
     const SHORTENERS = ['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'cutt.ly', 'rb.gy', 'is.gd', 'ow.ly', 'shorturl.at', 'tiny.cc', 'rebrand.ly', 't.ly', 's.id', 'v.gd', 'buff.ly', 'shorte.st', 'adf.ly', 'tinylink.in'];
-    const SUSPECT_TLDS = ['biz', 'xyz', 'top', 'online', 'site', 'club', 'icu', 'buzz', 'work', 'click', 'link', 'loan', 'tk', 'ml', 'ga', 'cf', 'gq', 'rest', 'live', 'info'];
+    const SUSPECT_TLDS = ['biz', 'xyz', 'top', 'online', 'site', 'club', 'icu', 'buzz', 'work', 'click', 'link', 'loan', 'tk', 'ml', 'ga', 'cf', 'gq', 'rest', 'live', 'info', 'shop'];
     const FREE_HOSTS = ['freehost', '000webhost', 'blogspot.', 'wixsite.', 'weebly.', 'godaddysites.', 'sites.google.', 'webflow.io', 'carrd.co'];
     const BRANDS = {
-      infosys: ['infosys.com'], tcs: ['tcs.com'], wipro: ['wipro.com'], accenture: ['accenture.com'],
-      google: ['google.com', 'googlemail.com'], gmail: ['gmail.com'], microsoft: ['microsoft.com'], outlook: ['outlook.com', 'outlook.in'],
-      yahoo: [], amazon: ['amazon.com', 'amazon.in', 'amazon.jobs'], cognizant: ['cognizant.com'], deloitte: ['deloitte.com'],
+      infosys: ['infosys.com', 'infy.com'], tcs: ['tcs.com', 'tcsion.com'], wipro: ['wipro.com'], accenture: ['accenture.com'],
+      google: ['google.com', 'google.co.in', 'google.jobs'], gmail: ['gmail.com'], microsoft: ['microsoft.com', 'microsoft.careers'], outlook: ['outlook.com', 'outlook.in'],
+      amazon: ['amazon.com', 'amazon.in', 'amazon.jobs'], cognizant: ['cognizant.com'], deloitte: ['deloitte.com'],
       capgemini: ['capgemini.com'], hcl: ['hcltech.com', 'hcl.com'], techmahindra: ['techmahindra.com'], ibm: ['ibm.com'],
-      flipkart: ['flipkart.com'], linkedin: ['linkedin.com'], naukri: ['naukri.com'], internshala: ['internshala.com']
+      flipkart: ['flipkart.com'], linkedin: ['linkedin.com'], naukri: ['naukri.com'], internshala: ['internshala.com'], indeed: ['indeed.com']
     };
     const KNOWN_TLDS = 'com|in|co|org|net|biz|xyz|info|io|ly|me|gl|gd|top|online|site|club|live|app|ai|us|uk|gov|edu|ac|tk|ml|ga|cf|gq|icu|buzz|work|click|link|at|cc|gy|id|to|shop|store|tech|jobs|careers|page|dev|rest|loan';
 
@@ -541,7 +521,6 @@
       return spans.some(([s, e]) => start < e && end > s);
     }
 
-    // Runs ordered rules over the text, skipping matches already claimed by a higher-priority rule.
     function runRules(text, rules, category) {
       const taken = [];
       const hits = [];
@@ -585,7 +564,6 @@
       const tokens = normalized.split(/[.\-]/);
       for (const [brand, official] of Object.entries(BRANDS)) {
         if (official.includes(reg)) continue;
-        if (brand === 'yahoo' && /^yahoo\.(?:com|co\.in|in)$/.test(reg)) continue;
         if (tokens.includes(brand)) return brand;
         if (brand.length >= 5) {
           if (normalized.replace(/[.\-]/g, '').includes(brand)) return brand;
@@ -595,7 +573,7 @@
       return null;
     }
 
-    function analyzeDomains(text) {
+    function analyzeDomainsInText(text) {
       const items = [];
       const spans = [];
       const add = (raw, host, kind, index) => {
@@ -626,13 +604,13 @@
         const tld = host.split('.').pop();
         const lookalike = findLookalike(host);
         let flagged = false;
-        const push = (label, metric, weight) => { hits.push({ label, metric, weight, category: 'domain', phrases: [raw] }); flagged = true; };
+        const push = (label, metric, weight, severity = 'medium') => { hits.push({ label, metric, weight, severity, category: 'domain', phrases: [raw] }); flagged = true; };
 
-        if (kind === 'email' && (FREE_MAIL.includes(reg) || /^yahoo\./.test(reg))) push('Free-mail recruiter address', 'FREE-MAIL', 15);
-        if (lookalike) push(`Lookalike domain (${lookalike})`, 'LOOKALIKE', 30);
-        if (SHORTENERS.includes(host) || SHORTENERS.includes(reg)) push('Shortened link hides destination', 'SHORT LINK', 20);
-        if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host)) push('Raw IP address link', 'RAW IP HOST', 20);
-        if (FREE_HOSTS.some(f => host.includes(f)) || (!lookalike && SUSPECT_TLDS.includes(tld))) push('Free hosting / suspect domain', 'SUSPECT HOST', 15);
+        if (kind === 'email' && (FREE_MAIL.includes(reg) || /^yahoo\./.test(reg))) push('Free-mail recruiter address', 'FREE-MAIL', 15, 'medium');
+        if (lookalike) push(`Lookalike domain (${lookalike})`, 'LOOKALIKE', 35, 'high');
+        if (SHORTENERS.includes(host) || SHORTENERS.includes(reg)) push('Shortened link hides destination', 'SHORT LINK', 20, 'medium');
+        if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host)) push('Raw IP address link', 'RAW IP HOST', 25, 'medium');
+        if (FREE_HOSTS.some(f => host.includes(f)) || (!lookalike && SUSPECT_TLDS.includes(tld))) push('Free hosting / suspect domain', 'SUSPECT HOST', 18, 'medium');
         if (!flagged) clean.push(item);
       });
       return { items, hits, clean };
@@ -647,26 +625,143 @@
     }
 
     function analyzeOffer(text) {
+      if (!text || !text.trim()) {
+        return { payment: [], coercion: [], domains: { items: [], hits: [], clean: [] }, company: null, cin: null, zeroFee: [], ruleHits: [] };
+      }
       const payment = runRules(text, PAYMENT_RULES, 'payment');
       const coercion = runRules(text, COERCION_RULES, 'coercion');
-      const domains = analyzeDomains(text);
+      const domains = analyzeDomainsInText(text);
       const company = extractCompany(text);
       const cin = (text.match(/\b[LU]\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}\b/) || [])[0] || null;
       const zeroFee = [...text.matchAll(ZERO_FEE_RE)].slice(0, 2).map(m => m[0].trim().replace(/\s+/g, ' '));
-
       const ruleHits = [...payment, ...coercion, ...domains.hits];
-      let safe = 1;
-      ruleHits.forEach(h => { safe *= 1 - h.weight / 100; });
-      let score = Math.round((1 - safe) * 100);
-      if (payment.length) score = Math.max(score, 50);
-      if (payment.length && (coercion.length || domains.hits.length)) score = Math.max(score, 85);
-      score = Math.min(98, Math.max(3, score));
 
-      return { payment, coercion, domains, company, cin, zeroFee, ruleHits, score };
+      return { payment, coercion, domains, company, cin, zeroFee, ruleHits };
     }
 
-    function topMetric(hits) {
-      return hits.slice().sort((a, b) => b.weight - a.weight)[0].metric;
+    // ---------- Backend Link Verification Caller ----------
+    async function verifyLinkBackend(url) {
+      const endpoint = '/.netlify/functions/verify-link';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      if (!response.ok) {
+        let errorMsg = `Server error (HTTP ${response.status})`;
+        try {
+          const errData = await response.json();
+          if (errData && errData.error) errorMsg = errData.error;
+        } catch (_) {}
+        throw new Error(errorMsg);
+      }
+
+      return await response.json();
+    }
+
+    // ---------- Threat Scanner Controller ----------
+    async function runThreatScan() {
+      initAudio();
+      if (isScanning) return;
+
+      const linkInput = document.getElementById('offerLink').value.trim();
+      const textInput = document.getElementById('offerInput').value.trim();
+      if (!linkInput && !textInput) return;
+
+      isScanning = true;
+      const scanBtn = document.getElementById('scanBtn');
+      scanBtn.disabled = true;
+      scanBtn.textContent = "SCAN IN PROGRESS...";
+      
+      const statusText = document.getElementById('consoleStatusText');
+      statusText.textContent = "SCANNING...";
+
+      const errDisplay = document.getElementById('linkErrorDisplay');
+      errDisplay.textContent = '';
+      errDisplay.classList.add('hidden');
+
+      resetProtocolTracker();
+      document.getElementById('overallTrackerStatus').textContent = 'LAYER 1/3 ACTIVE';
+      
+      const analyzedSourcesDesc = (linkInput && textInput)
+        ? 'Offer link & pasted text'
+        : linkInput
+          ? 'Offer link only'
+          : 'Pasted offer text only';
+
+      logTelemetry(`INITIALIZING SCAN: Analyzing ${analyzedSourcesDesc}...`);
+      
+      // Phase 1 Ingestion
+      document.getElementById('phase1Label').className = "text-white font-bold";
+      document.getElementById('phase1Badge').className = "text-white";
+      document.getElementById('phase1Badge').textContent = "PROCESSING...";
+      playScanBeep(1);
+
+      let linkResult = null;
+      let linkError = null;
+
+      try {
+        // Trigger link verification if provided
+        const linkPromise = linkInput
+          ? verifyLinkBackend(linkInput).catch(err => {
+              linkError = err.message || 'Link verification failed';
+              return null;
+            })
+          : Promise.resolve(null);
+
+        // Animate tracker steps while awaiting backend
+        await new Promise(r => setTimeout(r, 400));
+        
+        document.getElementById('phase1Label').className = "text-gray-400";
+        document.getElementById('phase1Badge').className = "text-gray-500";
+        document.getElementById('phase1Badge').textContent = "DONE (14ms)";
+        
+        document.getElementById('overallTrackerStatus').textContent = 'LAYER 2/3 ACTIVE';
+        document.getElementById('phase2Label').className = "text-white font-bold";
+        document.getElementById('phase2Badge').className = "text-white";
+        document.getElementById('phase2Badge').textContent = "QUERYING RDAP & MCA...";
+        playScanBeep(2);
+
+        linkResult = await linkPromise;
+
+        document.getElementById('phase2Label').className = "text-gray-400";
+        document.getElementById('phase2Badge').className = "text-gray-500";
+        document.getElementById('phase2Badge').textContent = linkResult ? "RDAP RESOLVED" : "SIGNAL READY";
+
+        document.getElementById('overallTrackerStatus').textContent = 'LAYER 3/3 ACTIVE';
+        document.getElementById('phase3Label').className = "text-white font-bold";
+        document.getElementById('phase3Badge').className = "text-white";
+        document.getElementById('phase3Badge').textContent = "SCORING...";
+        playScanBeep(3);
+
+        await new Promise(r => setTimeout(r, 400));
+
+        document.getElementById('phase3Label').className = "text-gray-400";
+        document.getElementById('phase3Badge').className = "text-gray-500";
+        document.getElementById('phase3Badge').textContent = "CLASSIFIED";
+        
+        document.getElementById('overallTrackerStatus').textContent = 'ALL LAYERS RESOLVED';
+
+        if (linkError) {
+          errDisplay.textContent = `LINK VERIFICATION NOTICE: ${linkError.toUpperCase()}`;
+          errDisplay.classList.remove('hidden');
+          logTelemetry(`LINK NOTICE: ${linkError}`);
+        }
+
+        // Render Combined Intelligence
+        renderCombinedResults(linkResult, textInput, linkInput, analyzedSourcesDesc);
+
+      } catch (err) {
+        logTelemetry(`SCAN ERROR: ${err.message}`);
+        errDisplay.textContent = `ERROR: ${err.message.toUpperCase()}`;
+        errDisplay.classList.remove('hidden');
+      } finally {
+        isScanning = false;
+        statusText.textContent = "SCANNER READY";
+        scanBtn.textContent = "RUN MULTI-LAYER THREAT SCAN";
+        handleInputChange();
+      }
     }
 
     function setMetric(id, value, title) {
@@ -675,42 +770,141 @@
       if (title) el.title = title; else el.removeAttribute('title');
     }
 
-    function renderScanResults(text) {
-      const a = analyzeOffer(text);
-      const tags = [];
-      a.ruleHits.forEach(h => h.phrases.forEach(p => tags.push({ text: h.label, quote: p, kind: 'danger' })));
-      a.zeroFee.forEach(p => tags.push({ text: 'Zero-fee statement', quote: p, kind: 'safe' }));
-      a.domains.clean.forEach(d => tags.push({ text: 'Domain found, no red flags', quote: d.raw, kind: 'info' }));
-      if (a.cin) tags.push({ text: 'CIN cited, MCA verification pending', quote: a.cin, kind: 'info' });
-      if (a.company) tags.push({ text: 'MCA record, verification pending', quote: a.company, kind: 'info' });
-      const dangerCount = tags.filter(t => t.kind === 'danger').length;
+    // ---------- Unified Classification & Rendering ----------
+    function renderCombinedResults(linkData, text, rawLinkInput, sourcesDesc) {
+      const textAnalysis = analyzeOffer(text);
+      const flags = [];
+      const positives = [];
 
-      const score = a.score;
-      const level = score >= 70 ? 'high' : score >= 35 ? 'medium' : 'low';
+      // Collect link flags
+      if (linkData) {
+        if (linkData.positives && Array.isArray(linkData.positives)) {
+          linkData.positives.forEach(p => positives.push({ text: p, source: 'LINK' }));
+        }
+        if (linkData.flags && Array.isArray(linkData.flags)) {
+          linkData.flags.forEach(f => {
+            const kind = f.severity === 'high' ? 'danger' : f.severity === 'medium' || f.severity === 'low' ? 'danger' : 'info';
+            flags.push({
+              id: f.id,
+              severity: f.severity || 'medium',
+              label: f.label,
+              evidence: f.evidence || '',
+              source: 'LINK',
+              kind
+            });
+          });
+        }
+      }
+
+      // Collect text flags
+      textAnalysis.ruleHits.forEach(h => {
+        h.phrases.forEach(p => {
+          flags.push({
+            id: `text_${h.category}_${h.metric}`,
+            severity: h.severity || (h.weight >= 30 ? 'high' : 'medium'),
+            label: h.label,
+            evidence: p,
+            source: 'TEXT',
+            kind: 'danger'
+          });
+        });
+      });
+
+      // Positive text signals
+      textAnalysis.zeroFee.forEach(p => {
+        positives.push({ text: `Zero-fee declaration: "${p}"`, source: 'TEXT' });
+      });
+
+      // Info signals
+      textAnalysis.domains.clean.forEach(d => {
+        flags.push({
+          id: 'text_clean_domain',
+          severity: 'info',
+          label: 'Domain found in text (no regex red flags)',
+          evidence: d.raw,
+          source: 'TEXT',
+          kind: 'info'
+        });
+      });
+
+      if (textAnalysis.cin) {
+        flags.push({
+          id: 'text_cin',
+          severity: 'info',
+          label: 'CIN cited in text',
+          evidence: textAnalysis.cin,
+          source: 'TEXT',
+          kind: 'info'
+        });
+      }
+
+      // Tally flags by severity
+      const dangerFlags = flags.filter(f => f.kind === 'danger');
+      const highFlags = dangerFlags.filter(f => f.severity === 'high');
+      const mediumFlags = dangerFlags.filter(f => f.severity === 'medium');
+      const lowFlags = dangerFlags.filter(f => f.severity === 'low');
+
+      // Threat Score Calculation
+      let safeFactor = 1.0;
+      highFlags.forEach(() => { safeFactor *= (1 - 0.40); });
+      mediumFlags.forEach(() => { safeFactor *= (1 - 0.22); });
+      lowFlags.forEach(() => { safeFactor *= (1 - 0.10); });
+
+      let calculatedScore = Math.round((1 - safeFactor) * 100);
+
+      // Positives reduce score slightly, but cannot cancel high flags
+      if (positives.length > 0) {
+        calculatedScore = Math.max(3, calculatedScore - (positives.length * 7));
+      }
+
+      // Specific Threat Rules:
+      // 1. Two or more high flags -> High risk
+      // 2. One high flag on domain under 30 days old -> High risk
+      // 3. One high flag alone -> Minimum 50%
+      const domainAgeDays = linkData ? linkData.domainAgeDays : null;
+      const isUnder30Days = domainAgeDays !== null && domainAgeDays !== undefined && domainAgeDays < 30;
+
+      if (highFlags.length >= 2 || (highFlags.length >= 1 && isUnder30Days)) {
+        calculatedScore = Math.max(calculatedScore, 75);
+      } else if (highFlags.length >= 1) {
+        calculatedScore = Math.max(calculatedScore, 52);
+      } else if (mediumFlags.length >= 2) {
+        calculatedScore = Math.max(calculatedScore, 45);
+      } else if (mediumFlags.length === 1) {
+        calculatedScore = Math.max(calculatedScore, 35);
+      } else if (dangerFlags.length === 0) {
+        calculatedScore = Math.min(calculatedScore, 10);
+      }
+
+      // Clamp strictly between 3% and 97%. Never show 0% or 100%.
+      const finalScore = Math.min(97, Math.max(3, calculatedScore));
+
+      const level = finalScore >= 70 ? 'high' : finalScore >= 35 ? 'medium' : 'low';
       const isHighRisk = level !== 'low';
-      const categories = [a.payment.length && 'payment', a.coercion.length && 'pressure tactics', a.domains.hits.length && 'domain trust'].filter(Boolean);
+
       let title, severityBadge, advisory;
+      const dangerCount = dangerFlags.length;
 
       if (level === 'high') {
         title = "SCAM DETECTED";
         severityBadge = "CRITICAL THREAT: HIGH SEVERITY";
-        advisory = `High-probability placement scam. ${dangerCount} threat indicators across ${categories.join(', ')}. Authentic recruiters never demand upfront fees, deposits or UPI transfers. Do not send money.`;
+        advisory = `High-probability placement extortion attempt [${sourcesDesc}]. Flagged ${dangerCount} threat indicator(s). Genuine employers never mandate upfront security deposits, equipment fees, or unverified chat-based payments.`;
         playThreatAlert();
       } else if (level === 'medium') {
         title = "SUSPICIOUS";
         severityBadge = "POTENTIAL THREAT: MEDIUM SEVERITY";
-        advisory = `${dangerCount} threat indicator${dangerCount === 1 ? '' : 's'} detected in ${categories.join(', ')}. Do not send money or documents until the recruiter and company are independently verified.`;
+        advisory = `Suspicious patterns detected [${sourcesDesc}]. ${dangerCount} indicator(s) require manual verification. Do not transfer funds or share sensitive KYC credentials until verified.`;
         playThreatAlert();
       } else {
         title = "LIKELY BENIGN";
         severityBadge = "LOW SUSPICION: LOW RISK";
-        advisory = dangerCount
-          ? `Only weak indicators found (${dangerCount}). No fee demand detected, but verify the recruiter identity before sharing documents.`
-          : "No fee demands, pressure tactics or risky domains detected in this text. Still verify the recruiter identity before sharing documents.";
+        advisory = `No prominent extortion or lookalike threat indicators detected [${sourcesDesc}]. Always cross-verify placement offers with the official campus coordinator or corporate portal.`;
         playSuccessChime();
       }
-      logTelemetry(`VERDICT: ${level.toUpperCase()} RISK (${score}%). ${dangerCount} indicator(s) flagged.`);
 
+      logTelemetry(`VERDICT: ${level.toUpperCase()} RISK (${finalScore}%). Inputs: ${sourcesDesc}. Flags: ${dangerCount}.`);
+
+      // Update Verdict Card
       const vc = document.getElementById('verdictCard');
       const scanTimestamp = document.getElementById('scanTimestamp');
       scanTimestamp.textContent = new Date().toTimeString().split(' ')[0] + ' IST';
@@ -737,65 +931,182 @@
 
       document.getElementById('verdictSeverity').textContent = severityBadge;
       document.getElementById('verdictTitle').textContent = title;
-      document.getElementById('riskPercentageText').textContent = `${score}%`;
+      document.getElementById('riskPercentageText').textContent = `${finalScore}%`;
       document.getElementById('verdictAdvisory').textContent = advisory;
 
-      const domainList = a.domains.items.map(d => d.host).join(', ');
-      setMetric('metricDomain', !a.domains.items.length ? 'No domain found' : a.domains.hits.length ? topMetric(a.domains.hits) : 'NO RED FLAGS', domainList);
-      setMetric('metricMCA', a.company ? 'Verification pending' : 'No company found', a.company);
-      setMetric('metricPayment', a.payment.length ? a.payment[0].metric : 'NONE DETECTED', a.payment.map(h => h.label).join(', '));
-      setMetric('metricNLP', !a.coercion.length ? 'NONE DETECTED' : a.coercion.length >= 3 ? 'HIGH PRESSURE' : topMetric(a.coercion), a.coercion.map(h => h.label).join(', '));
+      // Update Indicator Metric Cards
+      // 1. DOMAIN TRUST
+      if (linkData) {
+        const lookalike = linkData.flags.find(f => f.id === 'brand_lookalike');
+        if (lookalike) {
+          setMetric('metricDomain', 'Lookalike Detected', lookalike.evidence);
+        } else if (linkData.domainAgeDays !== null && linkData.domainAgeDays !== undefined) {
+          if (linkData.domainAgeDays < 30) {
+            setMetric('metricDomain', `Registered ${linkData.domainAgeDays}d ago`, `Domain: ${linkData.domain}`);
+          } else if (linkData.domainAgeDays >= 730) {
+            setMetric('metricDomain', `Established, ${Math.floor(linkData.domainAgeDays / 365)} yrs`, `Domain: ${linkData.domain}`);
+          } else {
+            setMetric('metricDomain', `Registered ${linkData.domainAgeDays}d ago`, `Domain: ${linkData.domain}`);
+          }
+        } else {
+          setMetric('metricDomain', 'Age Unknown', `Domain: ${linkData.domain}`);
+        }
+      } else if (textAnalysis.domains.items.length) {
+        const topHit = textAnalysis.domains.hits[0];
+        setMetric('metricDomain', topHit ? topHit.metric : 'NO RED FLAGS', textAnalysis.domains.items.map(d => d.host).join(', '));
+      } else {
+        setMetric('metricDomain', 'No link scanned', 'No domain or link provided');
+      }
 
+      // 2. MCA RECORD (Verification pending)
+      setMetric('metricMCA', textAnalysis.company ? 'Verification pending' : 'Verification pending', textAnalysis.company || 'MCA check standby');
+
+      // 3. PAYMENT REQ
+      const paymentFlag = flags.find(f => f.id.includes('payment') || f.id.includes('fee') || f.id.includes('money'));
+      if (textAnalysis.payment.length) {
+        setMetric('metricPayment', textAnalysis.payment[0].metric, textAnalysis.payment.map(h => h.label).join(', '));
+      } else if (paymentFlag) {
+        setMetric('metricPayment', 'FEE DEMAND', paymentFlag.evidence);
+      } else {
+        setMetric('metricPayment', 'NONE DETECTED', 'No payment demands detected');
+      }
+
+      // 4. NLP COERCION
+      const coercionFlag = flags.find(f => f.id.includes('coercion') || f.id.includes('pressure') || f.id.includes('unrealistic'));
+      if (textAnalysis.coercion.length >= 3) {
+        setMetric('metricNLP', 'HIGH PRESSURE', textAnalysis.coercion.map(h => h.label).join(', '));
+      } else if (textAnalysis.coercion.length) {
+        setMetric('metricNLP', textAnalysis.coercion[0].metric, textAnalysis.coercion.map(h => h.label).join(', '));
+      } else if (coercionFlag) {
+        setMetric('metricNLP', 'PRESSURE TACTIC', coercionFlag.evidence);
+      } else {
+        setMetric('metricNLP', 'NONE DETECTED', 'No pressure or coercion language detected');
+      }
+
+      // Forensic Indicators Section Header Line
+      const telemetryHeader = document.getElementById('telemetryHeaderLine');
+      if (linkData) {
+        const ageStr = linkData.domainAgeDays !== null ? `${linkData.domainAgeDays}D` : 'UNKNOWN';
+        const httpsStr = linkData.https ? 'YES' : 'NO';
+        const redirectsCount = linkData.redirectChain ? Math.max(0, linkData.redirectChain.length - 1) : 0;
+        telemetryHeader.textContent = `DOMAIN: ${linkData.domain} | AGE: ${ageStr} | HTTPS: ${httpsStr} | REDIRECTS: ${redirectsCount}`;
+        telemetryHeader.classList.remove('hidden');
+      } else if (text) {
+        telemetryHeader.textContent = `INPUT: PASTED TEXT (${text.length} CHR) | DOMAINS DETECTED: ${textAnalysis.domains.items.length} | HTTPS: N/A`;
+        telemetryHeader.classList.remove('hidden');
+      } else {
+        telemetryHeader.classList.add('hidden');
+      }
+
+      // Unreadable Notice
+      const unreadableNotice = document.getElementById('unreadableNoticeLine');
+      if (linkData && linkData.notice) {
+        unreadableNotice.textContent = linkData.notice;
+        unreadableNotice.classList.remove('hidden');
+      } else {
+        unreadableNotice.classList.add('hidden');
+      }
+
+      // Populate Flags List
       const tc = document.getElementById('flaggedTagsContainer');
       tc.innerHTML = '';
       document.getElementById('flaggedCount').textContent = `${dangerCount} FLAGS`;
 
-      if (!tags.length) {
-        tc.innerHTML = '<div class="text-[11px] text-gray-600 font-sans italic">No indicators flagged in this text.</div>';
+      if (!dangerFlags.length && !positives.length && !flags.filter(f => f.kind === 'info').length) {
+        tc.innerHTML = '<div class="text-[11px] text-gray-600 font-sans italic">No threat indicators flagged across evaluated sources.</div>';
       }
-      tags.forEach(t => {
+
+      // Render Danger Flags
+      dangerFlags.forEach(t => {
         const d = document.createElement('div');
-        const color = t.kind === 'danger' ? 'text-accent border-accent/50 bg-accent/10' : 'text-gray-300 border-gray-700 bg-gray-900';
-        d.className = `flex items-center gap-3 px-3 py-2 border text-[10px] font-mono uppercase tracking-widest ${color}`;
-        const icon = document.createElement('span');
-        icon.className = 'font-bold shrink-0';
-        icon.textContent = t.kind === 'danger' ? '[X]' : t.kind === 'safe' ? '[✓]' : '[?]';
-        const body = document.createElement('span');
-        body.className = 'min-w-0 break-words';
-        body.textContent = `${t.text}: `;
-        const quote = document.createElement('span');
-        quote.className = 'normal-case';
-        quote.textContent = `"${t.quote}"`;
-        body.appendChild(quote);
-        d.append(icon, ' ', body);
+        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-accent border-accent/50 bg-accent/10';
+        d.innerHTML = `
+          <span class="font-bold shrink-0">[X]</span>
+          <div class="min-w-0 flex-grow break-words">
+            <span class="px-1 py-0.5 text-[9px] font-mono border border-accent/40 bg-black/40 text-accent mr-1.5 uppercase">${t.source}</span>
+            <span class="font-bold uppercase">${t.label}:</span>
+            <span class="normal-case text-gray-300 font-sans ml-1">"${t.evidence}"</span>
+          </div>
+        `;
         tc.appendChild(d);
       });
 
-      prepareComplaintDraft(text, tags.filter(t => t.kind === 'danger'));
+      // Render Safe / Positive Signals
+      positives.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-gray-300 border-gray-700 bg-gray-900/80';
+        d.innerHTML = `
+          <span class="font-bold shrink-0 text-white">[✓]</span>
+          <div class="min-w-0 flex-grow break-words">
+            <span class="px-1 py-0.5 text-[9px] font-mono border border-gray-700 bg-black/40 text-gray-400 mr-1.5 uppercase">${p.source}</span>
+            <span class="text-white">${p.text}</span>
+          </div>
+        `;
+        tc.appendChild(d);
+      });
+
+      // Render Info Flags
+      flags.filter(f => f.kind === 'info').forEach(info => {
+        const d = document.createElement('div');
+        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-gray-400 border-gray-800 bg-gray-950';
+        d.innerHTML = `
+          <span class="font-bold shrink-0 text-gray-500">[?]</span>
+          <div class="min-w-0 flex-grow break-words">
+            <span class="px-1 py-0.5 text-[9px] font-mono border border-gray-800 bg-black/40 text-gray-500 mr-1.5 uppercase">${info.source}</span>
+            <span class="uppercase">${info.label}:</span>
+            <span class="normal-case text-gray-400 font-sans ml-1">"${info.evidence}"</span>
+          </div>
+        `;
+        tc.appendChild(d);
+      });
+
+      lastScanData = {
+        title,
+        finalScore,
+        sourcesDesc,
+        linkData,
+        text,
+        dangerFlags,
+        positives
+      };
+
+      prepareComplaintDraft(rawLinkInput, text, linkData, dangerFlags);
     }
 
-    function prepareComplaintDraft(rawText, tags) {
+    function prepareComplaintDraft(rawLink, rawText, linkData, dangerFlags) {
+      const linkSummary = linkData ? `
+LINK INVESTIGATION:
+Target URL: ${linkData.finalUrl || rawLink}
+Registrable Domain: ${linkData.domain || 'N/A'}
+Domain Age: ${linkData.domainAgeDays !== null ? linkData.domainAgeDays + ' days' : 'Unknown'}
+Redirect Chain: ${(linkData.redirectChain || [rawLink]).join(' -> ')}
+HTTPS: ${linkData.https ? 'Active' : 'Unencrypted HTTP'}
+` : (rawLink ? `Target URL: ${rawLink}` : 'No direct link submitted');
+
       const draft = `INCIDENT REPORT — PLACEMENT EXTORTION ATTEMPT
 Date: ${new Date().toLocaleDateString('en-IN')} | Time: ${new Date().toLocaleTimeString('en-IN')}
-Platform: National Cyber Crime Reporting Portal (1930)
+Platform: National Cyber Crime Reporting Portal (1930) / cybercrime.gov.in
 
 COMPLAINT CLASSIFICATION:
-Category: Online Job Recruitment Fraud
-Demand: Upfront Security Fee
-Victim: Engineering Undergraduate
+Category: Online Job Recruitment Fraud / Phishing Extortion
+Demand: Upfront Security / Laptop / Training Fee
+Victim: Engineering Undergraduate Candidate
 
-EVIDENCE TELEMETRY:
-${tags.length ? tags.map((t, idx) => `[${idx + 1}] ${t.text}: "${t.quote}"`).join('\n') : 'No automated indicators flagged.'}
+${linkSummary}
 
-RAW MESSAGE STREAM:
+FORENSIC EVIDENCE TELEMETRY:
+${dangerFlags.length ? dangerFlags.map((t, idx) => `[${idx + 1}] [${t.source}] ${t.label}: "${t.evidence}"`).join('\n') : 'No automated indicators flagged.'}
+
+RAW OFFER CONTENT / MESSAGE STREAM:
 ----------------------------------------
-${rawText}
+${rawText || (rawLink ? 'Offer URL submitted for verification: ' + rawLink : 'No raw text attached')}
 ----------------------------------------
 
-REQUESTED MITIGATION:
-1. Block UPI IDs.
-2. Flag Telegram handlers.
-3. Issue containment notice.`;
+REQUESTED CYBER CELL ACTIONS:
+1. Freeze and blacklist associated recipient UPI IDs and mule bank accounts.
+2. Coordinate with registrar for domain suspension of malicious lookalike URLs.
+3. Issue containment notice across university placement networks.`;
+
       document.getElementById('complaintDraftText').value = draft;
     }
 
@@ -815,15 +1126,19 @@ REQUESTED MITIGATION:
       const data = {
         tool: "Scam Shield V2.4",
         timestamp: new Date().toISOString(),
+        sourcesAnalyzed: lastScanData ? lastScanData.sourcesDesc : 'N/A',
+        offerLink: document.getElementById('offerLink').value,
         rawText: document.getElementById('offerInput').value,
         verdict: document.getElementById('verdictTitle').textContent,
         riskLikelihood: document.getElementById('riskPercentageText').textContent,
-        flags: document.getElementById('flaggedCount').textContent
+        flagsCount: document.getElementById('flaggedCount').textContent,
+        linkTelemetry: lastScanData ? lastScanData.linkData : null,
+        indicators: lastScanData ? lastScanData.dangerFlags : []
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `threat-dossier-${Date.now()}.json`;
+      a.href = url; a.download = `scam-shield-threat-dossier-${Date.now()}.json`;
       a.click(); URL.revokeObjectURL(url);
     }
 
@@ -863,7 +1178,6 @@ REQUESTED MITIGATION:
 
     window.onload = () => {
       initChart();
-      document.getElementById('terminalClock') && (document.getElementById('terminalClock').textContent = new Date().toTimeString().split(' ')[0] + ' IST');
       handleInputChange();
     };
   </script>
