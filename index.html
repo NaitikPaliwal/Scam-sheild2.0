@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scam Shield — Telemetry</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Instrument Sans"', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            gray: {
+              50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 300: '#d4d4d8', 400: '#a1a1aa',
+              500: '#71717a', 600: '#52525b', 700: '#3f3f46', 800: '#27272a', 900: '#18181b', 950: '#09090b',
+            },
+            accent: {
+              DEFAULT: '#ff3300'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #09090b; border-left: 1px solid #18181b; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; }
+    ::-webkit-scrollbar-thumb:hover { background: #ff3300; }
+    body { background-color: #09090b; color: #d4d4d8; margin: 0; }
+    button:focus, textarea:focus { outline: none; }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased flex flex-col selection:bg-accent selection:text-white">
+
+  <!-- TOP TICKER -->
+  <div class="border-b border-gray-800 bg-gray-950 px-4 py-2 flex justify-between items-center text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+    <div class="flex items-center gap-4">
+      <span class="text-accent flex items-center gap-2 font-bold">
+        <span class="w-1.5 h-1.5 bg-accent block"></span>
+        WARNING: CAMPUS PLACEMENT THREATS ACTIVE
+      </span>
+      <span class="hidden md:inline border-l border-gray-800 pl-4">80% SCAMS VIA WHATSAPP/TELEGRAM. ZERO LEGITIMATE FEES.</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span>HELPLINE: 1930</span>
+      <span class="border-l border-gray-800 pl-4">MCA SYNC: OK</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="border-b border-gray-800 bg-gray-950 px-4 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+      <h1 class="text-3xl font-serif text-white tracking-tight uppercase leading-none">Scam Shield <span class="text-xs font-mono text-gray-500 ml-2 tracking-widest">V2.4-TELEMETRY</span></h1>
+      <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-2">Anti-Extortion Heuristic Ingestion</div>
+    </div>
+    <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
+      <button id="audioToggleBtn" onclick="toggleAudio()" class="px-4 py-2 border border-gray-800 hover:border-gray-500 hover:text-white transition-colors">
+        <span id="audioText">SFX: ON</span>
+      </button>
+      <button onclick="toggleModal('dtModal')" class="px-4 py-2 border border-gray-800 hover:border-gray-500 hover:text-white transition-colors">
+        FRAMEWORK
+      </button>
+      <button onclick="resetConsole()" class="px-4 py-2 border border-gray-800 hover:border-gray-500 hover:text-white transition-colors">
+        RESET
+      </button>
+    </div>
+  </header>
+
+  <!-- METRICS BANNER -->
+  <div class="grid grid-cols-1 md:grid-cols-3 border-b border-gray-800 bg-gray-950 divide-y md:divide-y-0 md:divide-x divide-gray-800">
+    <div class="p-5 flex flex-col justify-center">
+      <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Crisis Scale</div>
+      <div class="text-4xl font-serif text-white tracking-tight">₹100,000 Cr</div>
+      <div class="text-xs text-gray-400 mt-2 font-sans">Estimated unregulated placement scam industry targeting Indian graduates</div>
+    </div>
+    <div class="p-5 flex flex-col justify-center">
+      <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Attack Surface</div>
+      <div class="text-3xl font-serif text-white tracking-tight uppercase">80% Infiltration</div>
+      <div class="text-xs text-gray-400 mt-2 font-sans">Off-campus unvetted peer channels via WhatsApp & Telegram</div>
+    </div>
+    <div class="p-5 flex flex-col justify-center">
+      <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Typical Extortion</div>
+      <div class="text-3xl font-serif text-white tracking-tight uppercase">₹2.5K – ₹15K</div>
+      <div class="text-xs text-gray-400 mt-2 font-sans">Upfront "Security/Laptop" Fee disguised as 100% refundable</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <main class="flex-grow grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-800 bg-gray-950">
+    
+    <!-- LEFT PANEL: INGESTION -->
+    <div class="flex flex-col p-5 gap-5">
+      <div class="flex justify-between items-end border-b border-gray-800 pb-3">
+        <h2 class="text-sm font-mono text-white uppercase tracking-widest">Offer Ingestion Console</h2>
+        <span class="text-[10px] font-mono text-accent uppercase tracking-widest flex items-center gap-2">
+          <span class="w-1.5 h-1.5 bg-accent block animate-pulse"></span>
+          Scanner Ready
+        </span>
+      </div>
+
+      <!-- Textarea -->
+      <div class="relative flex-grow flex flex-col border border-gray-800 group focus-within:border-gray-500 transition-colors">
+        <textarea id="offerInput" oninput="handleInputChange()" placeholder="Paste an offer letter, email, WhatsApp or Telegram message here..." class="w-full flex-grow min-h-[340px] bg-gray-950 text-gray-300 font-mono text-[11px] leading-relaxed p-4 resize-none"></textarea>
+        <div class="absolute bottom-3 right-4 text-[10px] font-mono text-gray-500 tracking-widest bg-gray-950 pl-2">
+          <span id="charCount">0 CHR</span> <span class="mx-1">|</span> <span id="wordCount">0 WRD</span>
+        </div>
+      </div>
+
+      <!-- Scan Button -->
+      <button id="scanBtn" onclick="runThreatScan()" disabled class="w-full py-4 bg-white text-black font-mono text-[11px] font-bold hover:bg-gray-200 uppercase tracking-[0.2em] transition-colors disabled:opacity-50 disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed">
+        Run Multi-Layer Threat Scan
+      </button>
+
+      <!-- Protocol Tracker -->
+      <div class="border border-gray-800 p-4 font-mono text-[10px] tracking-widest">
+        <div class="flex justify-between mb-4 border-b border-gray-800 pb-2">
+          <span class="text-gray-500">THREAT PROTOCOL TRACKER</span>
+          <span id="overallTrackerStatus" class="text-white">SYSTEM READY</span>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center" id="phase1Card">
+            <span class="text-gray-500" id="phase1Label">01 INGESTION <span class="text-gray-700 ml-2 hidden sm:inline">(LINK & TEXT)</span></span>
+            <span class="text-gray-600" id="phase1Badge">STANDBY</span>
+          </div>
+          <div class="flex justify-between items-center" id="phase2Card">
+            <span class="text-gray-500" id="phase2Label">02 SIGNAL CHECK <span class="text-gray-700 ml-2 hidden sm:inline">(MCA & WHOIS)</span></span>
+            <span class="text-gray-600" id="phase2Badge">STANDBY</span>
+          </div>
+          <div class="flex justify-between items-center" id="phase3Card">
+            <span class="text-gray-500" id="phase3Label">03 PATTERN AI <span class="text-gray-700 ml-2 hidden sm:inline">(NLP SCORING)</span></span>
+            <span class="text-gray-600" id="phase3Badge">STANDBY</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terminal -->
+      <div class="border border-gray-800 bg-gray-950 p-3 h-28 overflow-y-auto font-mono text-[10px] tracking-widest text-gray-500 flex flex-col gap-1.5" id="terminalLog">
+        <div>> Scam Shield heuristic engine v2.4 initialized.</div>
+        <div>> MCA Corporate Master Database connector online.</div>
+        <div class="text-white">> Ready. Paste an offer to evaluate threats.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: DASHBOARD -->
+    <div class="flex flex-col p-5 gap-5">
+      <div class="flex justify-between items-end border-b border-gray-800 pb-3">
+        <h2 class="text-sm font-mono text-white uppercase tracking-widest">Intelligence Dashboard</h2>
+        <span id="scanTimestamp" class="text-[10px] font-mono text-gray-500 tracking-widest">IDLE</span>
+      </div>
+
+      <!-- Verdict Card -->
+      <div id="verdictCard" class="border border-gray-800 p-6 flex flex-col gap-6 transition-colors duration-300 bg-gray-950">
+        <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div>
+            <div id="verdictSeverity" class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">STANDBY EVALUATION</div>
+            <div id="verdictTitle" class="text-4xl font-serif text-white tracking-tight leading-none uppercase">Awaiting Data</div>
+          </div>
+          <div class="sm:text-right shrink-0">
+            <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Threat Likelihood</div>
+            <div id="riskPercentageText" class="text-5xl font-mono text-white tracking-tighter leading-none">--%</div>
+          </div>
+        </div>
+        
+        <div id="verdictAdvisory" class="text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed">
+          Paste an offer letter, email or message into the console and run a scan to see Scam Shield classify threat indicators in real time.
+        </div>
+
+        <!-- Action Boxes -->
+        <div id="scamActionBox" class="hidden flex flex-wrap gap-3 border-t border-gray-800 pt-4">
+          <div class="w-full text-[10px] font-mono text-white mb-1 tracking-widest">CONTAINMENT PROTOCOL: DO NOT SEND MONEY</div>
+          <button onclick="openComplaintModal()" class="px-4 py-2 border border-accent text-accent text-[10px] font-mono hover:bg-accent hover:text-white transition-colors uppercase tracking-widest">
+            Draft 1930 Complaint
+          </button>
+          <button onclick="exportThreatDossier()" class="px-4 py-2 border border-gray-600 text-white text-[10px] font-mono hover:bg-gray-800 transition-colors uppercase tracking-widest">
+            Export JSON Dossier
+          </button>
+        </div>
+        
+        <div id="safeActionBox" class="hidden border-t border-gray-800 pt-4">
+          <div class="text-[10px] font-mono text-white mb-1 tracking-widest">RECOMMENDED STEPS:</div>
+          <div class="text-xs text-gray-400 font-sans">Safe to cross-check with College Placement Portal & verify recruiter on LinkedIn.</div>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-gray-800 border border-gray-800 shrink-0">
+        <div class="bg-gray-950 p-3">
+          <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">Domain Trust</div>
+          <div id="metricDomain" class="text-[11px] font-mono text-white truncate">Unchecked</div>
+        </div>
+        <div class="bg-gray-950 p-3">
+          <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">MCA Record</div>
+          <div id="metricMCA" class="text-[11px] font-mono text-white truncate">Unchecked</div>
+        </div>
+        <div class="bg-gray-950 p-3">
+          <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">Payment Req</div>
+          <div id="metricPayment" class="text-[11px] font-mono text-white truncate">Unchecked</div>
+        </div>
+        <div class="bg-gray-950 p-3">
+          <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">NLP Coercion</div>
+          <div id="metricNLP" class="text-[11px] font-mono text-white truncate">Unchecked</div>
+        </div>
+      </div>
+
+      <!-- Flags -->
+      <div class="border border-gray-800 p-5 flex-grow flex flex-col">
+        <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
+          <span class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Forensic Indicators</span>
+          <span id="flaggedCount" class="text-[10px] font-mono text-white tracking-widest">0 FLAGS</span>
+        </div>
+        <div id="flaggedTagsContainer" class="flex flex-col gap-2">
+          <div class="text-[11px] text-gray-600 font-sans italic">No indicators flagged. Run a scan to trigger multi-vector analysis.</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="border border-gray-800 p-5 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="w-full sm:w-1/2 flex flex-col">
+          <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-4">Campus Scam Vectors</div>
+          <div class="flex flex-col gap-3 text-[10px] font-mono text-gray-400 uppercase tracking-widest">
+            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-200 block"></span> Direct Chat</span> <span class="text-white">45%</span></div>
+            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-400 block"></span> Training</span> <span class="text-white">30%</span></div>
+            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-600 block"></span> Phishing</span> <span class="text-white">15%</span></div>
+            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-800 block"></span> Tasks</span> <span class="text-white">10%</span></div>
+          </div>
+        </div>
+        <div class="w-full sm:w-1/2 h-32 relative flex justify-center">
+          <canvas id="scamVectorsChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL: Framework -->
+  <div id="dtModal" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4">
+    <div class="bg-gray-950 border border-gray-800 w-full max-w-2xl p-8 flex flex-col gap-6 shadow-2xl">
+      <div class="flex justify-between items-start border-b border-gray-800 pb-4">
+        <div>
+          <h3 class="text-2xl font-serif text-white uppercase tracking-tight">Design Thinking Dossier</h3>
+          <div class="text-[10px] font-mono text-gray-500 tracking-widest mt-1">PROJECT: SCAM SHIELD</div>
+        </div>
+        <button onclick="toggleModal('dtModal')" class="text-gray-500 hover:text-white font-mono text-xs tracking-widest px-2 py-1 border border-transparent hover:border-gray-700">[CLOSE]</button>
+      </div>
+      <div class="space-y-6 text-xs text-gray-300 font-sans leading-relaxed">
+        <div>
+          <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">01 EMPATHIZE</div>
+          <div class="pl-4 border-l border-gray-800 text-gray-400">College students face fierce placement competition. FOMO makes them vulnerable to unsolicited WhatsApp/Telegram offers with high stipends asking for refundable deposits.</div>
+        </div>
+        <div>
+          <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">02 DEFINE</div>
+          <div class="pl-4 border-l border-gray-800 text-gray-400">Students have no instant tool to verify whether an offer letter, CIN code, or recruiter domain is genuine before transferring money via UPI.</div>
+        </div>
+        <div>
+          <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">03 IDEATE</div>
+          <div class="pl-4 border-l border-gray-800 text-gray-400">A 3-phase client-side heuristic engine: Ingestion (normalizes links), Signal Check (MCA & WHOIS), Pattern AI (evaluates upfront fees and coercion).</div>
+        </div>
+        <div>
+          <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">04 TEST</div>
+          <div class="pl-4 border-l border-gray-800 text-gray-400">Empowers students to halt transactions, download formatted evidence for National Cyber Crime Portal (1930), and alert campus placement directors automatically.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Complaint -->
+  <div id="complaintModal" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4">
+    <div class="bg-gray-950 border border-gray-800 w-full max-w-2xl p-8 flex flex-col gap-6 shadow-2xl">
+      <div class="flex justify-between items-start border-b border-gray-800 pb-4">
+        <div>
+          <h3 class="text-2xl font-serif text-white uppercase tracking-tight">1930 Portal Draft</h3>
+          <div class="text-[10px] font-mono text-gray-500 tracking-widest mt-1">NATIONAL CYBER CRIME COMPLIANT</div>
+        </div>
+        <button onclick="toggleModal('complaintModal')" class="text-gray-500 hover:text-white font-mono text-xs tracking-widest px-2 py-1 border border-transparent hover:border-gray-700">[CLOSE]</button>
+      </div>
+      <textarea id="complaintDraftText" rows="12" readonly class="w-full bg-gray-900 border border-gray-800 text-gray-300 text-[11px] font-mono p-4 resize-none focus:outline-none"></textarea>
+      <div class="flex justify-between items-center border-t border-gray-800 pt-4">
+        <span class="text-[10px] text-accent font-mono tracking-widest">DIAL 1930 IMMEDIATELY FOR FINANCIAL FREEZE</span>
+        <button id="copyComplaintBtn" onclick="copyComplaintToClipboard()" class="px-6 py-3 bg-white text-black font-mono text-[10px] font-bold hover:bg-gray-200 uppercase tracking-widest transition-colors">
+          <span id="copyComplaintBtnText">COPY DRAFT TEXT</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    // System Settings
+    let soundEnabled = true;
+    let isScanning = false;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) audioCtx = new AudioContext();
+        } catch (e) { }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playTone(freq, type, duration, delay = 0) {
+      if (!soundEnabled || !audioCtx) return;
+      setTimeout(() => {
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {}
+      }, delay);
+    }
+
+    function playScanBeep(step) {
+      if (!soundEnabled) return;
+      if (step === 1) playTone(880, 'square', 0.05);
+      if (step === 2) playTone(1200, 'square', 0.05);
+      if (step === 3) playTone(1600, 'square', 0.08);
+    }
+
+    function playThreatAlert() {
+      if (!soundEnabled) return;
+      playTone(200, 'sawtooth', 0.15, 0);
+      playTone(200, 'sawtooth', 0.15, 150);
+      playTone(200, 'sawtooth', 0.3, 300);
+    }
+
+    function playSuccessChime() {
+      if (!soundEnabled) return;
+      playTone(600, 'sine', 0.1, 0);
+      playTone(800, 'sine', 0.15, 100);
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('audioText').textContent = soundEnabled ? 'SFX: ON' : 'SFX: MUTED';
+      if(soundEnabled) playTone(800, 'sine', 0.1);
+    }
+
+    function toggleModal(id) {
+      initAudio();
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.toggle('hidden');
+    }
+
+    function handleInputChange() {
+      const text = document.getElementById('offerInput').value;
+      document.getElementById('charCount').textContent = `${text.length} CHR`;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      document.getElementById('wordCount').textContent = `${words} WRD`;
+      if (!isScanning) document.getElementById('scanBtn').disabled = !text.trim();
+    }
+
+    function resetConsole() {
+      initAudio();
+      playTone(300, 'sine', 0.1);
+      document.getElementById('offerInput').value = '';
+      handleInputChange();
+      
+      resetProtocolTracker();
+      
+      const vc = document.getElementById('verdictCard');
+      vc.className = "border border-gray-800 p-6 flex flex-col gap-6 transition-colors duration-300 bg-gray-950";
+      document.getElementById('verdictSeverity').className = "text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2";
+      document.getElementById('verdictSeverity').textContent = "STANDBY EVALUATION";
+      document.getElementById('verdictTitle').textContent = "AWAITING DATA";
+      document.getElementById('verdictTitle').className = "text-4xl font-serif text-white tracking-tight leading-none uppercase";
+      document.getElementById('riskPercentageText').textContent = "--%";
+      document.getElementById('riskPercentageText').className = "text-5xl font-mono text-white tracking-tighter leading-none";
+      document.getElementById('verdictAdvisory').className = "text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed";
+      document.getElementById('verdictAdvisory').textContent = 'Paste an offer letter, email or message into the console and run a scan to see Scam Shield classify threat indicators in real time.';
+      
+      ['metricDomain', 'metricMCA', 'metricPayment', 'metricNLP'].forEach(id => {
+        const el = document.getElementById(id);
+        el.textContent = "Unchecked";
+        el.removeAttribute('title');
+      });
+      
+      document.getElementById('flaggedTagsContainer').innerHTML = '<div class="text-[11px] text-gray-600 font-sans italic">No indicators flagged. Run a scan to trigger multi-vector analysis.</div>';
+      document.getElementById('flaggedCount').textContent = "0 FLAGS";
+      
+      document.getElementById('scamActionBox').classList.add('hidden');
+      document.getElementById('safeActionBox').classList.add('hidden');
+      
+      document.getElementById('scanTimestamp').textContent = "IDLE";
+      document.getElementById('complaintDraftText').value = '';
+      
+      logTelemetry('Console state re-initialized.');
+    }
+
+    function resetProtocolTracker() {
+      document.getElementById('overallTrackerStatus').textContent = 'SYSTEM READY';
+      document.getElementById('overallTrackerStatus').className = 'text-white';
+      
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById(`phase${i}Label`).className = "text-gray-500";
+        document.getElementById(`phase${i}Badge`).className = "text-gray-600";
+        document.getElementById(`phase${i}Badge`).textContent = "STANDBY";
+      }
+    }
+
+    function logTelemetry(msg) {
+      const log = document.getElementById('terminalLog');
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      const line = document.createElement('div');
+      line.innerHTML = `<span class="text-gray-600">[${timeStr}]</span> <span class="text-gray-300">${msg}</span>`;
+      log.appendChild(line);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function runThreatScan() {
+      initAudio();
+      if (isScanning) return;
+      const text = document.getElementById('offerInput').value.trim();
+      if (!text) return;
+
+      isScanning = true;
+      const scanBtn = document.getElementById('scanBtn');
+      scanBtn.disabled = true;
+      scanBtn.textContent = "SCAN IN PROGRESS...";
+      
+      resetProtocolTracker();
+      document.getElementById('overallTrackerStatus').textContent = 'LAYER 1/3 ACTIVE';
+      
+      logTelemetry(`INITIALIZING SCAN: Analyzing ${text.length} characters...`);
+      
+      // Phase 1
+      document.getElementById('phase1Label').className = "text-white font-bold";
+      document.getElementById('phase1Badge').className = "text-white";
+      document.getElementById('phase1Badge').textContent = "PROCESSING...";
+      playScanBeep(1);
+
+      setTimeout(() => {
+        document.getElementById('phase1Label').className = "text-gray-400";
+        document.getElementById('phase1Badge').className = "text-gray-500";
+        document.getElementById('phase1Badge').textContent = "DONE (14ms)";
+        
+        document.getElementById('overallTrackerStatus').textContent = 'LAYER 2/3 ACTIVE';
+        document.getElementById('phase2Label').className = "text-white font-bold";
+        document.getElementById('phase2Badge').className = "text-white";
+        document.getElementById('phase2Badge').textContent = "QUERYING...";
+        playScanBeep(2);
+      }, 500);
+
+      setTimeout(() => {
+        document.getElementById('phase2Label').className = "text-gray-400";
+        document.getElementById('phase2Badge').className = "text-gray-500";
+        document.getElementById('phase2Badge').textContent = "MCA PENDING";
+        
+        document.getElementById('overallTrackerStatus').textContent = 'LAYER 3/3 ACTIVE';
+        document.getElementById('phase3Label').className = "text-white font-bold";
+        document.getElementById('phase3Badge').className = "text-white";
+        document.getElementById('phase3Badge').textContent = "SCORING...";
+        playScanBeep(3);
+      }, 1000);
+
+      setTimeout(() => {
+        document.getElementById('phase3Label').className = "text-gray-400";
+        document.getElementById('phase3Badge').className = "text-gray-500";
+        document.getElementById('phase3Badge').textContent = "CLASSIFIED";
+        
+        document.getElementById('overallTrackerStatus').textContent = 'ALL LAYERS RESOLVED';
+        
+        renderScanResults(text);
+        
+        isScanning = false;
+        scanBtn.textContent = "RUN MULTI-LAYER THREAT SCAN";
+        handleInputChange();
+      }, 1500);
+    }
+
+    // ---------- Heuristic engine ----------
+    const NEGATION_RE = /\b(?:no|not|never|zero|without|nor|don'?t|doesn'?t|won'?t|free of)\b/i;
+    const AMOUNT = '(?:₹|rs\\.?|inr)\\s?\\d[\\d,]*(?:\\.\\d+)?';
+
+    const PAYMENT_RULES = [
+      { label: 'Personal UPI ID', metric: 'PERSONAL UPI', weight: 30, re: /\b[\w.\-]{2,}@(?:upi|ybl|okaxis|okhdfcbank|oksbi|okicici|paytm|ibl|axl|apl|ptyes|ptaxis|pthdfc|ptsbi)\b/gi },
+      { label: 'Laptop / security fee', metric: 'LAPTOP/SECURITY FEE', weight: 30, re: /\b(?:laptop|equipment|security|caution)\s+(?:(?:verification|registration|refundable)\s+)?(?:fee|fees|deposit|deposits|charges?|money|amount)\b/gi },
+      { label: 'Upfront fee demand', metric: 'FEE DEMAND', weight: 30, re: /\b(?:registration|processing|training|onboarding|verification|joining|documentation|application|enrol?ment|kit|interview|certification)\s+(?:fee|fees|charges?|deposit|amount)\b/gi },
+      { label: 'Payment amount requested', metric: 'FEE DEMAND', weight: 25, re: new RegExp(`\\b(?:pay|deposit|transfer|send|remit)(?:\\s+(?:a|an|the|only|just|us|of|amount|sum|fee|refundable|immediately|now))*\\s*${AMOUNT}|${AMOUNT}\\s*(?:\\/-)?\\s*(?:\\w+\\s+){0,2}(?:fee|fees|deposit|charges?)\\b`, 'gi') },
+      { label: '"Refundable" money claim', metric: 'REFUNDABLE FEE', weight: 20, re: /\b(?:100%\s*|fully\s+)?refundable\b(?:\s+(?:\w+\s+){0,2}(?:fee|deposit|amount|charges?)\b)?/gi },
+      { label: 'Deposit request', metric: 'DEPOSIT DEMAND', weight: 20, re: /\b(?:security\s+deposit|deposit|advance\s+payment|token\s+amount|caution\s+money)\b/gi },
+      { label: 'Bank details shared', metric: 'BANK DETAILS', weight: 20, re: /\b(?:a\/c\s*(?:no\.?|number)?|account\s+(?:no\.?|number)|ifsc(?:\s+code)?|bank\s+(?:details|transfer|account)|neft|imps|rtgs)(?![\w])/gi },
+      { label: 'IFSC code shared', metric: 'BANK DETAILS', weight: 20, re: /\b[A-Z]{4}0[A-Z0-9]{6}\b/g },
+      { label: 'UPI / wallet payment channel', metric: 'UPI REQUEST', weight: 15, re: /\b(?:upi(?:\s+id)?|g\s?pay|google\s+pay|phone\s?pe|paytm|bhim)\b/gi }
+    ];
+
+    const COERCION_RULES = [
+      { label: 'Guaranteed selection', metric: 'GUARANTEED JOB', weight: 20, re: /\b(?:guaranteed|100%|assured)\s+(?:job|selection|placement|offer|joining)\b|\b(?:job|placement|selection)\s+guarantee(?:d)?\b/gi },
+      { label: 'Selection without interview', metric: 'NO INTERVIEW', weight: 20, negatable: false, re: /\b(?:selected\s+)?(?:no|without(?:\s+(?:any|an?))?)\s+(?:interviews?|tests?|exams?|assessments?)\b(?:\s+(?:required|needed|rounds?))?|\bdirect\s+(?:selection|joining|hiring)\b|\bselected\s+directly\b/gi },
+      { label: 'Hard deadline', metric: 'DEADLINE PRESSURE', weight: 18, re: /\b(?:(?:confirm|pay|respond|reply|join|accept|register|complete|submit)\w*\s+(?:\w+\s+){0,4}?)?within\s+(?:the\s+next\s+)?\d+\s*(?:minutes?|mins?|hours?|hrs?)\b|\b(?:today\s+only|by\s+(?:today|tonight|end\s+of\s+(?:the\s+)?day|eod)|last\s+chance|before\s+midnight|expires?\s+(?:today|tonight))\b/gi },
+      { label: 'Cancellation threat', metric: 'CANCELLATION THREAT', weight: 18, re: /\b(?:offer|selection|seat|candidature|allotment|internship)\s+(?:will\s+be\s+|shall\s+be\s+|gets?\s+)?(?:cancel+ed|revoked|forfeited|withdrawn)\b|\b(?:immediate\s+)?cancellation\s+of\s+(?:your\s+)?(?:offer|selection|seat|candidature|internship)\b|\ballot(?:ted|ment)\s+to\s+(?:wait-?listed|other)\s+candidates\b/gi },
+      { label: 'Scarcity pressure', metric: 'LIMITED SEATS', weight: 15, re: /\b(?:limited\s+(?:seats?|slots?|positions?|openings?|vacanc(?:y|ies)|spots?)|only\s+\d+\s+(?:seats?|slots?|positions?|spots?)(?:\s+(?:left|remaining|available))?|(?:seats?|slots?)\s+(?:are\s+)?(?:filling\s+(?:up\s+)?fast|almost\s+full)|few\s+(?:seats?|slots?)\s+left|first\s+come,?\s+first\s+served?)\b/gi },
+      { label: 'Off-platform chat handoff', metric: 'CHAT HANDOFF', weight: 15, re: /\b(?:t\.me|wa\.me)\/\S+|\b(?:telegram|whatsapp)\s*(?:id|handle|number|no\.?)?\s*[:\-]?\s*@[\w]+|\b(?:share|send)\s+(?:the\s+)?(?:payment\s+|transaction\s+)?screenshot\b/gi },
+      { label: 'Urgency pressure', metric: 'URGENCY', weight: 12, re: /\b(?:urgent(?:ly)?|immediately|asap|right\s+away|act\s+(?:now|fast)|hurry|without\s+delay)\b/gi }
+    ];
+
+    const ZERO_FEE_RE = /\b(?:zero[-\s]fee|(?:do|does|will)\s+not\s+(?:charge|ask\s+for|collect|request)|never\s+(?:charges?|asks?|requests?|collects?))\b[^.,;\n]{0,60}/gi;
+
+    const FREE_MAIL = ['gmail.com', 'googlemail.com', 'ymail.com', 'outlook.com', 'outlook.in', 'hotmail.com', 'live.com', 'msn.com', 'rediffmail.com', 'aol.com', 'protonmail.com', 'proton.me', 'icloud.com', 'mail.com', 'gmx.com', 'yandex.com'];
+    const SHORTENERS = ['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'cutt.ly', 'rb.gy', 'is.gd', 'ow.ly', 'shorturl.at', 'tiny.cc', 'rebrand.ly', 't.ly', 's.id', 'v.gd', 'buff.ly', 'shorte.st', 'adf.ly', 'tinylink.in'];
+    const SUSPECT_TLDS = ['biz', 'xyz', 'top', 'online', 'site', 'club', 'icu', 'buzz', 'work', 'click', 'link', 'loan', 'tk', 'ml', 'ga', 'cf', 'gq', 'rest', 'live', 'info'];
+    const FREE_HOSTS = ['freehost', '000webhost', 'blogspot.', 'wixsite.', 'weebly.', 'godaddysites.', 'sites.google.', 'webflow.io', 'carrd.co'];
+    const BRANDS = {
+      infosys: ['infosys.com'], tcs: ['tcs.com'], wipro: ['wipro.com'], accenture: ['accenture.com'],
+      google: ['google.com', 'googlemail.com'], gmail: ['gmail.com'], microsoft: ['microsoft.com'], outlook: ['outlook.com', 'outlook.in'],
+      yahoo: [], amazon: ['amazon.com', 'amazon.in', 'amazon.jobs'], cognizant: ['cognizant.com'], deloitte: ['deloitte.com'],
+      capgemini: ['capgemini.com'], hcl: ['hcltech.com', 'hcl.com'], techmahindra: ['techmahindra.com'], ibm: ['ibm.com'],
+      flipkart: ['flipkart.com'], linkedin: ['linkedin.com'], naukri: ['naukri.com'], internshala: ['internshala.com']
+    };
+    const KNOWN_TLDS = 'com|in|co|org|net|biz|xyz|info|io|ly|me|gl|gd|top|online|site|club|live|app|ai|us|uk|gov|edu|ac|tk|ml|ga|cf|gq|icu|buzz|work|click|link|at|cc|gy|id|to|shop|store|tech|jobs|careers|page|dev|rest|loan';
+
+    function isNegated(text, index) {
+      const clause = text.slice(Math.max(0, index - 80), index).split(/[.!?\n;]/).pop();
+      return NEGATION_RE.test(clause);
+    }
+
+    function overlaps(spans, start, end) {
+      return spans.some(([s, e]) => start < e && end > s);
+    }
+
+    // Runs ordered rules over the text, skipping matches already claimed by a higher-priority rule.
+    function runRules(text, rules, category) {
+      const taken = [];
+      const hits = [];
+      rules.forEach(rule => {
+        const phrases = [];
+        for (const m of text.matchAll(rule.re)) {
+          const phrase = m[0].trim().replace(/\s+/g, ' ');
+          const end = m.index + m[0].length;
+          if (!phrase || overlaps(taken, m.index, end)) continue;
+          if (rule.negatable !== false && isNegated(text, m.index)) continue;
+          taken.push([m.index, end]);
+          if (!phrases.some(p => p.toLowerCase() === phrase.toLowerCase())) phrases.push(phrase);
+          if (phrases.length >= 3) break;
+        }
+        if (phrases.length) hits.push({ ...rule, category, phrases });
+      });
+      return hits;
+    }
+
+    function editDistance(a, b) {
+      const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+      for (let j = 1; j <= b.length; j++) dp[0][j] = j;
+      for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+          dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        }
+      }
+      return dp[a.length][b.length];
+    }
+
+    function registrableDomain(host) {
+      const parts = host.split('.');
+      const secondLevel = ['co', 'com', 'net', 'org', 'ac', 'gov', 'edu'];
+      if (parts.length > 2 && secondLevel.includes(parts[parts.length - 2])) return parts.slice(-3).join('.');
+      return parts.slice(-2).join('.');
+    }
+
+    function findLookalike(host) {
+      const reg = registrableDomain(host);
+      const normalized = host.replace(/0/g, 'o').replace(/1/g, 'l').replace(/3/g, 'e').replace(/5/g, 's').replace(/rn/g, 'm');
+      const tokens = normalized.split(/[.\-]/);
+      for (const [brand, official] of Object.entries(BRANDS)) {
+        if (official.includes(reg)) continue;
+        if (brand === 'yahoo' && /^yahoo\.(?:com|co\.in|in)$/.test(reg)) continue;
+        if (tokens.includes(brand)) return brand;
+        if (brand.length >= 5) {
+          if (normalized.replace(/[.\-]/g, '').includes(brand)) return brand;
+          if (tokens.some(t => t.length >= 4 && t !== brand && editDistance(t, brand) <= (brand.length >= 7 ? 2 : 1))) return brand;
+        }
+      }
+      return null;
+    }
+
+    function analyzeDomains(text) {
+      const items = [];
+      const spans = [];
+      const add = (raw, host, kind, index) => {
+        spans.push([index, index + raw.length]);
+        host = host.toLowerCase().replace(/^www\./, '').replace(/\.+$/, '');
+        if (!items.some(i => i.raw.toLowerCase() === raw.toLowerCase())) items.push({ raw, host, kind });
+      };
+
+      for (const m of text.matchAll(/\b[A-Z0-9._%+\-]+@((?:[A-Z0-9\-]+\.)+[A-Z]{2,})\b/gi)) add(m[0], m[1], 'email', m.index);
+      for (const m of text.matchAll(/\b(?:https?:\/\/|www\.)[^\s<>"'()\[\]]+/gi)) {
+        if (overlaps(spans, m.index, m.index + m[0].length)) continue;
+        const raw = m[0].replace(/[.,;:!?]+$/, '');
+        add(raw, raw.replace(/^https?:\/\//i, '').split(/[\/?#:]/)[0], 'url', m.index);
+      }
+      const bare = new RegExp(`\\b(?:[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?\\.)+(?:${KNOWN_TLDS})\\b(?:\\/[^\\s<>"'()\\[\\]]*)?`, 'gi');
+      for (const m of text.matchAll(bare)) {
+        if (overlaps(spans, m.index, m.index + m[0].length)) continue;
+        if (text[m.index - 1] === '@') continue;
+        const raw = m[0].replace(/[.,;:!?]+$/, '');
+        add(raw, raw.split(/[\/?#:]/)[0], 'url', m.index);
+      }
+
+      const hits = [];
+      const clean = [];
+      items.forEach(item => {
+        const { host, raw, kind } = item;
+        const reg = registrableDomain(host);
+        const tld = host.split('.').pop();
+        const lookalike = findLookalike(host);
+        let flagged = false;
+        const push = (label, metric, weight) => { hits.push({ label, metric, weight, category: 'domain', phrases: [raw] }); flagged = true; };
+
+        if (kind === 'email' && (FREE_MAIL.includes(reg) || /^yahoo\./.test(reg))) push('Free-mail recruiter address', 'FREE-MAIL', 15);
+        if (lookalike) push(`Lookalike domain (${lookalike})`, 'LOOKALIKE', 30);
+        if (SHORTENERS.includes(host) || SHORTENERS.includes(reg)) push('Shortened link hides destination', 'SHORT LINK', 20);
+        if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host)) push('Raw IP address link', 'RAW IP HOST', 20);
+        if (FREE_HOSTS.some(f => host.includes(f)) || (!lookalike && SUSPECT_TLDS.includes(tld))) push('Free hosting / suspect domain', 'SUSPECT HOST', 15);
+        if (!flagged) clean.push(item);
+      });
+      return { items, hits, clean };
+    }
+
+    function extractCompany(text) {
+      const tidy = v => v.trim().replace(/[\s,;:\-–]+$/, '').slice(0, 80);
+      const labelled = text.match(/\b(?:company(?:\s+name)?|organi[sz]ation|employer|firm)\s*[:\-–]\s*([^\n|(]{2,80})/i);
+      if (labelled && tidy(labelled[1])) return tidy(labelled[1]);
+      const suffixed = text.match(/\b((?:[A-Z][A-Za-z0-9&'.\-]*\s+){1,5}(?:Private\s+Limited|Pvt\.?\s*Ltd\.?|Limited|Ltd\.?|LLP|Inc\.?|Corporation|Corp\.?|Technologies|Solutions|Services|Infotech|Consultancy))(?![A-Za-z])/);
+      return suffixed ? tidy(suffixed[1]) : null;
+    }
+
+    function analyzeOffer(text) {
+      const payment = runRules(text, PAYMENT_RULES, 'payment');
+      const coercion = runRules(text, COERCION_RULES, 'coercion');
+      const domains = analyzeDomains(text);
+      const company = extractCompany(text);
+      const cin = (text.match(/\b[LU]\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}\b/) || [])[0] || null;
+      const zeroFee = [...text.matchAll(ZERO_FEE_RE)].slice(0, 2).map(m => m[0].trim().replace(/\s+/g, ' '));
+
+      const ruleHits = [...payment, ...coercion, ...domains.hits];
+      let safe = 1;
+      ruleHits.forEach(h => { safe *= 1 - h.weight / 100; });
+      let score = Math.round((1 - safe) * 100);
+      if (payment.length) score = Math.max(score, 50);
+      if (payment.length && (coercion.length || domains.hits.length)) score = Math.max(score, 85);
+      score = Math.min(98, Math.max(3, score));
+
+      return { payment, coercion, domains, company, cin, zeroFee, ruleHits, score };
+    }
+
+    function topMetric(hits) {
+      return hits.slice().sort((a, b) => b.weight - a.weight)[0].metric;
+    }
+
+    function setMetric(id, value, title) {
+      const el = document.getElementById(id);
+      el.textContent = value;
+      if (title) el.title = title; else el.removeAttribute('title');
+    }
+
+    function renderScanResults(text) {
+      const a = analyzeOffer(text);
+      const tags = [];
+      a.ruleHits.forEach(h => h.phrases.forEach(p => tags.push({ text: h.label, quote: p, kind: 'danger' })));
+      a.zeroFee.forEach(p => tags.push({ text: 'Zero-fee statement', quote: p, kind: 'safe' }));
+      a.domains.clean.forEach(d => tags.push({ text: 'Domain found, no red flags', quote: d.raw, kind: 'info' }));
+      if (a.cin) tags.push({ text: 'CIN cited, MCA verification pending', quote: a.cin, kind: 'info' });
+      if (a.company) tags.push({ text: 'MCA record, verification pending', quote: a.company, kind: 'info' });
+      const dangerCount = tags.filter(t => t.kind === 'danger').length;
+
+      const score = a.score;
+      const level = score >= 70 ? 'high' : score >= 35 ? 'medium' : 'low';
+      const isHighRisk = level !== 'low';
+      const categories = [a.payment.length && 'payment', a.coercion.length && 'pressure tactics', a.domains.hits.length && 'domain trust'].filter(Boolean);
+      let title, severityBadge, advisory;
+
+      if (level === 'high') {
+        title = "SCAM DETECTED";
+        severityBadge = "CRITICAL THREAT: HIGH SEVERITY";
+        advisory = `High-probability placement scam. ${dangerCount} threat indicators across ${categories.join(', ')}. Authentic recruiters never demand upfront fees, deposits or UPI transfers. Do not send money.`;
+        playThreatAlert();
+      } else if (level === 'medium') {
+        title = "SUSPICIOUS";
+        severityBadge = "POTENTIAL THREAT: MEDIUM SEVERITY";
+        advisory = `${dangerCount} threat indicator${dangerCount === 1 ? '' : 's'} detected in ${categories.join(', ')}. Do not send money or documents until the recruiter and company are independently verified.`;
+        playThreatAlert();
+      } else {
+        title = "LIKELY BENIGN";
+        severityBadge = "LOW SUSPICION: LOW RISK";
+        advisory = dangerCount
+          ? `Only weak indicators found (${dangerCount}). No fee demand detected, but verify the recruiter identity before sharing documents.`
+          : "No fee demands, pressure tactics or risky domains detected in this text. Still verify the recruiter identity before sharing documents.";
+        playSuccessChime();
+      }
+      logTelemetry(`VERDICT: ${level.toUpperCase()} RISK (${score}%). ${dangerCount} indicator(s) flagged.`);
+
+      const vc = document.getElementById('verdictCard');
+      const scanTimestamp = document.getElementById('scanTimestamp');
+      scanTimestamp.textContent = new Date().toTimeString().split(' ')[0] + ' IST';
+
+      if (isHighRisk) {
+        vc.className = "border border-accent p-6 flex flex-col gap-6 transition-colors duration-300 bg-[#1a0500]";
+        document.getElementById('verdictSeverity').className = "text-[10px] font-mono text-accent uppercase tracking-widest mb-2 font-bold";
+        document.getElementById('verdictTitle').className = "text-4xl font-serif text-accent tracking-tight leading-none uppercase";
+        document.getElementById('riskPercentageText').className = "text-5xl font-mono text-accent tracking-tighter leading-none";
+        document.getElementById('verdictAdvisory').className = "text-xs font-sans text-accent border-t border-accent/30 pt-4 leading-relaxed";
+        
+        document.getElementById('scamActionBox').classList.remove('hidden');
+        document.getElementById('safeActionBox').classList.add('hidden');
+      } else {
+        vc.className = "border border-white p-6 flex flex-col gap-6 transition-colors duration-300 bg-gray-950";
+        document.getElementById('verdictSeverity').className = "text-[10px] font-mono text-gray-400 uppercase tracking-widest mb-2";
+        document.getElementById('verdictTitle').className = "text-4xl font-serif text-white tracking-tight leading-none uppercase";
+        document.getElementById('riskPercentageText').className = "text-5xl font-mono text-white tracking-tighter leading-none";
+        document.getElementById('verdictAdvisory').className = "text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed";
+        
+        document.getElementById('scamActionBox').classList.add('hidden');
+        document.getElementById('safeActionBox').classList.remove('hidden');
+      }
+
+      document.getElementById('verdictSeverity').textContent = severityBadge;
+      document.getElementById('verdictTitle').textContent = title;
+      document.getElementById('riskPercentageText').textContent = `${score}%`;
+      document.getElementById('verdictAdvisory').textContent = advisory;
+
+      const domainList = a.domains.items.map(d => d.host).join(', ');
+      setMetric('metricDomain', !a.domains.items.length ? 'No domain found' : a.domains.hits.length ? topMetric(a.domains.hits) : 'NO RED FLAGS', domainList);
+      setMetric('metricMCA', a.company ? 'Verification pending' : 'No company found', a.company);
+      setMetric('metricPayment', a.payment.length ? a.payment[0].metric : 'NONE DETECTED', a.payment.map(h => h.label).join(', '));
+      setMetric('metricNLP', !a.coercion.length ? 'NONE DETECTED' : a.coercion.length >= 3 ? 'HIGH PRESSURE' : topMetric(a.coercion), a.coercion.map(h => h.label).join(', '));
+
+      const tc = document.getElementById('flaggedTagsContainer');
+      tc.innerHTML = '';
+      document.getElementById('flaggedCount').textContent = `${dangerCount} FLAGS`;
+
+      if (!tags.length) {
+        tc.innerHTML = '<div class="text-[11px] text-gray-600 font-sans italic">No indicators flagged in this text.</div>';
+      }
+      tags.forEach(t => {
+        const d = document.createElement('div');
+        const color = t.kind === 'danger' ? 'text-accent border-accent/50 bg-accent/10' : 'text-gray-300 border-gray-700 bg-gray-900';
+        d.className = `flex items-center gap-3 px-3 py-2 border text-[10px] font-mono uppercase tracking-widest ${color}`;
+        const icon = document.createElement('span');
+        icon.className = 'font-bold shrink-0';
+        icon.textContent = t.kind === 'danger' ? '[X]' : t.kind === 'safe' ? '[✓]' : '[?]';
+        const body = document.createElement('span');
+        body.className = 'min-w-0 break-words';
+        body.textContent = `${t.text}: `;
+        const quote = document.createElement('span');
+        quote.className = 'normal-case';
+        quote.textContent = `"${t.quote}"`;
+        body.appendChild(quote);
+        d.append(icon, ' ', body);
+        tc.appendChild(d);
+      });
+
+      prepareComplaintDraft(text, tags.filter(t => t.kind === 'danger'));
+    }
+
+    function prepareComplaintDraft(rawText, tags) {
+      const draft = `INCIDENT REPORT — PLACEMENT EXTORTION ATTEMPT
+Date: ${new Date().toLocaleDateString('en-IN')} | Time: ${new Date().toLocaleTimeString('en-IN')}
+Platform: National Cyber Crime Reporting Portal (1930)
+
+COMPLAINT CLASSIFICATION:
+Category: Online Job Recruitment Fraud
+Demand: Upfront Security Fee
+Victim: Engineering Undergraduate
+
+EVIDENCE TELEMETRY:
+${tags.length ? tags.map((t, idx) => `[${idx + 1}] ${t.text}: "${t.quote}"`).join('\n') : 'No automated indicators flagged.'}
+
+RAW MESSAGE STREAM:
+----------------------------------------
+${rawText}
+----------------------------------------
+
+REQUESTED MITIGATION:
+1. Block UPI IDs.
+2. Flag Telegram handlers.
+3. Issue containment notice.`;
+      document.getElementById('complaintDraftText').value = draft;
+    }
+
+    function openComplaintModal() { toggleModal('complaintModal'); }
+
+    function copyComplaintToClipboard() {
+      const text = document.getElementById('complaintDraftText').value;
+      navigator.clipboard.writeText(text).then(() => {
+        document.getElementById('copyComplaintBtnText').textContent = "COPIED TO CLIPBOARD";
+        playTone(800, 'square', 0.1);
+        setTimeout(() => document.getElementById('copyComplaintBtnText').textContent = "COPY DRAFT TEXT", 2000);
+      });
+    }
+
+    function exportThreatDossier() {
+      initAudio(); playTone(600, 'sine', 0.1);
+      const data = {
+        tool: "Scam Shield V2.4",
+        timestamp: new Date().toISOString(),
+        rawText: document.getElementById('offerInput').value,
+        verdict: document.getElementById('verdictTitle').textContent,
+        riskLikelihood: document.getElementById('riskPercentageText').textContent,
+        flags: document.getElementById('flaggedCount').textContent
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `threat-dossier-${Date.now()}.json`;
+      a.click(); URL.revokeObjectURL(url);
+    }
+
+    function initChart() {
+      if (!window.Chart) return;
+      const ctx = document.getElementById('scamVectorsChart');
+      if (!ctx) return;
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Direct Chat', 'Training', 'Phishing', 'Tasks'],
+          datasets: [{
+            data: [45, 30, 15, 10],
+            backgroundColor: ['#e4e4e7', '#a1a1aa', '#52525b', '#27272a'],
+            borderColor: '#09090b',
+            borderWidth: 2,
+            hoverOffset: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '75%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#000',
+              titleFont: { family: 'monospace', size: 10 },
+              bodyFont: { family: 'monospace', size: 10 },
+              cornerRadius: 0,
+              padding: 10
+            }
+          }
+        }
+      });
+    }
+
+    window.onload = () => {
+      initChart();
+      document.getElementById('terminalClock') && (document.getElementById('terminalClock').textContent = new Date().toTimeString().split(' ')[0] + ' IST');
+      handleInputChange();
+    };
+  </script>
+</body>
+</html>
