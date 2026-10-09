@@ -641,7 +641,7 @@
 
     // ---------- Backend Link Verification Caller ----------
     async function verifyLinkBackend(url) {
-      const endpoint = '/.netlify/functions/verify-link';
+      const endpoint = '/api/verify-link';
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

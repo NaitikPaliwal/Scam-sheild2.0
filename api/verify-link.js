@@ -7,9 +7,9 @@ function isPrivateIPv4(ip) {
   if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) return true;
   const [a, b, c, d] = parts;
 
-  // 0.0.0.0/8 (Current network)
+  // 0.0.0.0/8
   if (a === 0) return true;
-  // 10.0.0.0/8 (Private network)
+  // 10.0.0.0/8
   if (a === 10) return true;
   // 100.64.0.0/10 (Carrier-grade NAT)
   if (a === 100 && b >= 64 && b <= 127) return true;
@@ -19,21 +19,21 @@ function isPrivateIPv4(ip) {
   if (a === 169 && b === 254) return true;
   // 172.16.0.0/12 (Private network)
   if (a === 172 && b >= 16 && b <= 31) return true;
-  // 192.0.0.0/24 (IETF Protocol Assignments)
+  // 192.0.0.0/24
   if (a === 192 && b === 0 && c === 0) return true;
-  // 192.0.2.0/24 (TEST-NET-1)
+  // 192.0.2.0/24
   if (a === 192 && b === 0 && c === 2) return true;
-  // 192.168.0.0/16 (Private network)
+  // 192.168.0.0/16
   if (a === 192 && b === 168) return true;
-  // 198.18.0.0/15 (Network benchmark tests)
+  // 198.18.0.0/15
   if (a === 198 && (b === 18 || b === 19)) return true;
-  // 198.51.100.0/24 (TEST-NET-2)
+  // 198.51.100.0/24
   if (a === 198 && b === 51 && c === 100) return true;
-  // 203.0.113.0/24 (TEST-NET-3)
+  // 203.0.113.0/24
   if (a === 203 && b === 0 && c === 113) return true;
   // 224.0.0.0/4 (Multicast)
   if (a >= 224 && a <= 239) return true;
-  // 240.0.0.0/4 (Reserved / Future use)
+  // 240.0.0.0/4 (Reserved)
   if (a >= 240) return true;
 
   return false;
@@ -41,9 +41,7 @@ function isPrivateIPv4(ip) {
 
 function isPrivateIPv6(ip) {
   const lower = ip.toLowerCase();
-  // Loopback & Unspecified
   if (lower === '::1' || lower === '::') return true;
-  // IPv4-mapped IPv6 (::ffff:192.168.1.1 or ::ffff:c0a8:0101)
   if (lower.startsWith('::ffff:')) {
     const rest = lower.slice(7);
     if (rest.includes('.')) return isPrivateIPv4(rest);
@@ -55,11 +53,8 @@ function isPrivateIPv6(ip) {
       return isPrivateIPv4(v4);
     }
   }
-  // Unique Local Address (fc00::/7 -> starts with fc or fd)
   if (/^f[cd][0-9a-f]{2}:/i.test(lower)) return true;
-  // Link-Local (fe80::/10 -> starts with fe8, fe9, fea, feb)
   if (/^fe[89ab][0-9a-f]:/i.test(lower)) return true;
-
   return false;
 }
 
@@ -80,7 +75,6 @@ async function validateHostSSRF(hostname) {
     throw new Error('Access to local/internal hostnames is blocked');
   }
 
-  // Direct IP check
   if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
     if (isPrivateIPv4(hostname)) {
       throw new Error(`Direct connection to private IP ${hostname} is blocked`);
@@ -174,10 +168,9 @@ function checkLookalike(hostname, registrableDomain) {
 
   for (const [key, info] of Object.entries(BRANDS)) {
     if (info.official.includes(regName)) {
-      continue; // Legitimate official domain
+      continue;
     }
 
-    // 1. Subdomain trick: brand name placed in subdomain of unrelated domain (e.g. google.com.fake-login.xyz or tcs.careers-portal.in)
     if (hostname.includes(key) && !regName.includes(key)) {
       return {
         matched: true,
@@ -186,7 +179,6 @@ function checkLookalike(hostname, registrableDomain) {
       };
     }
 
-    // 2. Suffix/prefix combinations in domain: e.g. tcs-careers, infosys-hr, google-jobs, etc.
     const compoundPatterns = [
       new RegExp(`(?:^|[.-])${key}[-_]?(?:careers|recruitment|jobs|hr|hiring|verify|portal|interview|team|apply|drive)(?:[.-]|$)`, 'i'),
       new RegExp(`(?:^|[.-])(?:careers|recruitment|jobs|hr|hiring|verify|portal|interview|team|apply|drive)[-_]?${key}(?:[.-]|$)`, 'i')
@@ -201,7 +193,6 @@ function checkLookalike(hostname, registrableDomain) {
       }
     }
 
-    // 3. Levenshtein / Typosquatting on domain main label
     if (key.length >= 4) {
       const dist = editDistance(domainPrefix, key);
       const threshold = key.length >= 7 ? 2 : 1;
@@ -214,7 +205,6 @@ function checkLookalike(hostname, registrableDomain) {
       }
     }
 
-    // 4. Normalized character swap check
     if (normalizedHost.includes(key) && !hostname.includes(key)) {
       return {
         matched: true,
@@ -296,7 +286,6 @@ async function fetchPageSafely(startUrl) {
         continue;
       }
 
-      // Final response reached
       const contentType = res.headers.get('content-type') || '';
       const isHtml = contentType.includes('text/html') || contentType.includes('application/xhtml+xml');
 
@@ -310,7 +299,6 @@ async function fetchPageSafely(startUrl) {
         };
       }
 
-      // Read max 1 MB
       const arrayBuffer = await res.arrayBuffer();
       const maxBytes = 1024 * 1024;
       const slice = arrayBuffer.byteLength > maxBytes ? arrayBuffer.slice(0, maxBytes) : arrayBuffer;
@@ -352,15 +340,12 @@ function analyzePageContent(html) {
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
     .replace(/<noscript\b[^<]*(?:(?!<\/noscript>)<[^<]*)*<\/noscript>/gi, ' ');
 
-  // Extract Title
   const titleMatch = cleanHtml.match(/<title[^>]*>([^<]+)<\/title>/i);
   const pageTitle = titleMatch ? titleMatch[1].trim() : '';
 
-  // Extract Form inputs / placeholders / labels
   const formFieldMatches = cleanHtml.match(/<(?:input|select|textarea)[^>]+(?:name|placeholder|id|aria-label)=["']?([^"'>]+)["']?/gi) || [];
   const formFieldsText = formFieldMatches.join(' ');
 
-  // Strip all HTML tags to get visible text
   const visibleText = cleanHtml
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ')
@@ -374,7 +359,7 @@ function analyzePageContent(html) {
 
   const combinedText = `${pageTitle} ${formFieldsText} ${visibleText}`;
 
-  // 1. Requests for Money / Fees (HIGH)
+  // 1. Money / Fees (HIGH)
   const moneyRules = [
     { re: /\b(?:registration|processing|training|onboarding|verification|joining|documentation|kit|interview|laptop|equipment|security|caution)\s+(?:fee|fees|deposit|deposits|charges?|amount|money)\b/i, label: 'Upfront fee or security deposit demand' },
     { re: /\b(?:100%\s*|fully\s+)?refundable\s+(?:fee|deposit|amount|security|caution)\b/i, label: 'Disguised "refundable" fee demand' },
@@ -396,7 +381,7 @@ function analyzePageContent(html) {
     }
   }
 
-  // 2. Sensitive Data Collection on Job Form (HIGH)
+  // 2. Sensitive Data Collection (HIGH)
   const sensitiveRules = [
     { re: /\b(?:aadhaar|aadhar)(?:\s*(?:card|no\.?|number))?\b/i, label: 'Aadhaar collection on job application form' },
     { re: /\b(?:pan\s*card|pan\s*number)\b/i, label: 'PAN card collection on unverified form' },
@@ -418,7 +403,7 @@ function analyzePageContent(html) {
     }
   }
 
-  // 3. Contact only via WhatsApp/Telegram or Free-Mail (MEDIUM)
+  // 3. Messaging only or free-mail contact (MEDIUM)
   const hasTelegram = /\b(?:t\.me|telegram\.me|telegram)\b/i.test(combinedText);
   const hasWhatsApp = /\b(?:wa\.me|api\.whatsapp\.com|whatsapp)\b/i.test(combinedText);
   const freeMailMatch = combinedText.match(/\b[A-Za-z0-9._%+-]+@(gmail\.com|yahoo\.com|outlook\.com|hotmail\.com|rediffmail\.com)\b/i);
@@ -441,7 +426,7 @@ function analyzePageContent(html) {
     });
   }
 
-  // 4. Pressure & Guarantee Language (MEDIUM)
+  // 4. Pressure & Guarantees (MEDIUM)
   const pressureRules = [
     { re: /\b(?:guaranteed|100%|assured)\s+(?:job|selection|placement|hiring|joining)\b/i, label: 'Guaranteed placement promise' },
     { re: /\b(?:no|without)\s+(?:interview|test|exam|assessment)\b|\bdirect\s+(?:selection|joining)\b/i, label: 'Selection without interview' },
@@ -462,7 +447,7 @@ function analyzePageContent(html) {
     }
   }
 
-  // 5. Unrealistic pay for entry level / fresher (MEDIUM)
+  // 5. Unrealistic pay (MEDIUM)
   const payMatch = combinedText.match(/\b(?:stipend|salary|pay|income|earning)\s*(?:of|is|:|-)?\s*(?:₹|rs\.?|inr)\s*(?:5[0-9],[0-9]{3}|[6-9][0-9],[0-9]{3}|1[0-9]{2},[0-9]{3}|[2-9][0-9]{5})\s*(?:\/|\s*per\s*)(?:month|mo|week|day)\b/i) ||
                    combinedText.match(/\b(?:earn|get)\s+(?:₹|rs\.?|inr)\s*(?:[1-9][0-9]{3,5})\s*(?:daily|per\s+day|every\s+day)\b/i);
   if (payMatch) {
@@ -474,7 +459,7 @@ function analyzePageContent(html) {
     });
   }
 
-  // 6. Missing Company Identity on Page (MEDIUM)
+  // 6. Missing Company Identity (MEDIUM)
   const hasAddress = /\b(?:address|registered\s+office|headquarters|location|suite|floor|road|street|nagar|sector|pin\s*code)\b/i.test(combinedText);
   const hasAboutOrContact = /\b(?:about\s+us|contact\s+us|privacy\s+policy|terms\s+of\s+service)\b/i.test(cleanHtml);
   if (!hasAddress && !hasAboutOrContact && visibleText.length < 800) {
@@ -489,91 +474,43 @@ function analyzePageContent(html) {
   return flags;
 }
 
-// --- Handler Export ---
-exports.handler = async function (event, context) {
-  // CORS Headers
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS'
-  };
-
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: corsHeaders, body: '' };
+// --- Core Link Verification Function ---
+async function verifyLink(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    throw { status: 400, message: 'Missing "url" parameter.' };
   }
 
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      body: JSON.stringify({ error: 'Method Not Allowed. Send POST { "url": "..." }' })
-    };
+  let formattedUrl = rawUrl.trim();
+  if (!/^https?:\/\//i.test(formattedUrl)) {
+    formattedUrl = 'https://' + formattedUrl;
   }
 
-  let rawUrl = '';
-  try {
-    const body = JSON.parse(event.body || '{}');
-    rawUrl = (body.url || '').trim();
-  } catch (err) {
-    return {
-      statusCode: 400,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      body: JSON.stringify({ error: 'Invalid JSON payload. Expected { "url": "..." }' })
-    };
-  }
-
-  if (!rawUrl) {
-    return {
-      statusCode: 400,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      body: JSON.stringify({ error: 'Missing "url" parameter.' })
-    };
-  }
-
-  // Auto-prepend https:// if bare domain
-  if (!/^https?:\/\//i.test(rawUrl)) {
-    rawUrl = 'https://' + rawUrl;
-  }
-
-  if (rawUrl.length > 2048) {
-    return {
-      statusCode: 400,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      body: JSON.stringify({ error: 'URL exceeds maximum allowed length of 2048 characters.' })
-    };
+  if (formattedUrl.length > 2048) {
+    throw { status: 400, message: 'URL exceeds maximum allowed length of 2048 characters.' };
   }
 
   let initialParsed;
   try {
-    initialParsed = new URL(rawUrl);
+    initialParsed = new URL(formattedUrl);
   } catch (e) {
-    return {
-      statusCode: 400,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      body: JSON.stringify({ error: 'Invalid URL format.' })
-    };
+    throw { status: 400, message: 'Invalid URL format.' };
   }
 
   if (initialParsed.protocol !== 'http:' && initialParsed.protocol !== 'https:') {
-    return {
-      statusCode: 400,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      body: JSON.stringify({ error: 'Only HTTP and HTTPS URLs are permitted.' })
-    };
+    throw { status: 400, message: 'Only HTTP and HTTPS URLs are permitted.' };
   }
 
   const initialHostname = initialParsed.hostname.toLowerCase();
   const initialParsedDomain = parse(initialHostname);
   const initialRegistrable = initialParsedDomain.domain || initialHostname;
 
-  // Run RDAP and Page Fetch in parallel
   const [rdapResult, pageResult] = await Promise.all([
     fetchRDAP(initialRegistrable),
-    fetchPageSafely(rawUrl)
+    fetchPageSafely(formattedUrl)
   ]);
 
-  const finalUrl = pageResult.finalUrl || rawUrl;
-  const redirectChain = pageResult.redirectChain || [rawUrl];
+  const finalUrl = pageResult.finalUrl || formattedUrl;
+  const redirectChain = pageResult.redirectChain || [formattedUrl];
   let finalParsed;
   try {
     finalParsed = new URL(finalUrl);
@@ -590,7 +527,7 @@ exports.handler = async function (event, context) {
   const flags = [];
   const positives = [];
 
-  // 1. Domain Age Checks
+  // 1. Domain Age
   const domainAgeDays = rdapResult.ageDays;
   if (domainAgeDays !== null && domainAgeDays !== undefined) {
     if (domainAgeDays < 30) {
@@ -629,7 +566,7 @@ exports.handler = async function (event, context) {
     });
   }
 
-  // 3. Lookalike Detection on initial & final hosts
+  // 3. Lookalike Detection
   const lookalikeInitial = checkLookalike(initialHostname, initialRegistrable);
   const lookalikeFinal = checkLookalike(finalHostname, finalRegistrable);
   const lookalikeMatch = lookalikeInitial || lookalikeFinal;
@@ -652,7 +589,7 @@ exports.handler = async function (event, context) {
     });
   }
 
-  // 5. URL Shorteners
+  // 5. Shorteners
   if (SHORTENERS.has(initialHostname) || redirectChain.some(u => {
     try { return SHORTENERS.has(new URL(u).hostname.toLowerCase()); } catch (_) { return false; }
   })) {
@@ -664,7 +601,7 @@ exports.handler = async function (event, context) {
     });
   }
 
-  // 6. Free Builders & Hosting Platforms
+  // 6. Free Builders
   const matchedBuilder = FREE_BUILDERS.find(b => finalHostname.includes(b) || initialHostname.includes(b));
   if (matchedBuilder) {
     flags.push({
@@ -685,7 +622,7 @@ exports.handler = async function (event, context) {
     });
   }
 
-  // 8. Known Job Platforms
+  // 8. Known Platforms
   if (JOB_PLATFORMS.has(finalRegistrable)) {
     flags.push({
       id: 'job_platform_notice',
@@ -695,7 +632,7 @@ exports.handler = async function (event, context) {
     });
   }
 
-  // 9. Page Content Checks (if HTML readable)
+  // 9. Page Content Flags
   let notice = pageResult.notice || null;
   if (pageResult.readable && pageResult.html) {
     const contentFlags = analyzePageContent(pageResult.html);
@@ -704,7 +641,7 @@ exports.handler = async function (event, context) {
     notice = 'Page content could not be read. Result is based on domain checks only.';
   }
 
-  const responsePayload = {
+  return {
     finalUrl,
     redirectChain,
     domain: finalRegistrable,
@@ -715,13 +652,42 @@ exports.handler = async function (event, context) {
     positives,
     notice
   };
+}
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      ...corsHeaders
-    },
-    body: JSON.stringify(responsePayload)
-  };
+// --- Vercel Serverless Function Handler (Node.js API Route) ---
+module.exports = async function handler(req, res) {
+  // CORS Headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed. Send POST { "url": "..." }' });
+  }
+
+  try {
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (_) {
+        return res.status(400).json({ error: 'Invalid JSON payload. Expected { "url": "..." }' });
+      }
+    }
+    body = body || {};
+
+    const result = await verifyLink(body.url);
+    return res.status(200).json(result);
+  } catch (err) {
+    const status = err.status || 500;
+    const errorMsg = err.message || 'An error occurred during link verification';
+    return res.status(status).json({ error: errorMsg });
+  }
 };
+
+// Also export verifyLink for local test runners
+module.exports.verifyLink = verifyLink;
