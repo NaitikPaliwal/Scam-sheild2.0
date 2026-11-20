@@ -9,6 +9,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   
+  <script>
+    // Immediate Theme Initialization to avoid FOUC
+    (function() {
+      const saved = localStorage.getItem('scam_shield_theme');
+      if (saved === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else if (saved === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else if (window.matchMedia && !window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -40,72 +57,90 @@
     ::-webkit-scrollbar-track { background: #09090b; border-left: 1px solid #18181b; }
     ::-webkit-scrollbar-thumb { background: #3f3f46; }
     ::-webkit-scrollbar-thumb:hover { background: #ff3300; }
+    
+    html.light ::-webkit-scrollbar-track,
+    html:not(.dark) ::-webkit-scrollbar-track { background: #f4f4f5; border-left: 1px solid #e4e4e7; }
+    html.light ::-webkit-scrollbar-thumb,
+    html:not(.dark) ::-webkit-scrollbar-thumb { background: #d4d4d8; }
+    html.light ::-webkit-scrollbar-thumb:hover,
+    html:not(.dark) ::-webkit-scrollbar-thumb:hover { background: #ff3300; }
+
     body { background-color: #09090b; color: #d4d4d8; margin: 0; }
+    html.light body,
+    html:not(.dark) body { background-color: #fafafa; color: #27272a; }
+
     button:focus, textarea:focus, input:focus { outline: none; }
   </style>
 </head>
-<body class="min-h-screen font-sans antialiased flex flex-col selection:bg-accent selection:text-white">
+<body class="min-h-screen font-sans antialiased flex flex-col selection:bg-accent selection:text-white transition-colors duration-200">
 
   <!-- TOP TICKER -->
-  <div class="border-b border-gray-800 bg-gray-950 px-4 py-2 flex justify-between items-center text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+  <div class="border-b border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-950 px-4 py-2 flex justify-between items-center text-[10px] font-mono text-gray-600 dark:text-gray-500 uppercase tracking-widest transition-colors duration-200">
     <div class="flex items-center gap-4">
       <span class="text-accent flex items-center gap-2 font-bold">
-        <span class="w-1.5 h-1.5 bg-accent block"></span>
+        <span class="w-1.5 h-1.5 bg-accent block animate-pulse"></span>
         WARNING: CAMPUS PLACEMENT THREATS ACTIVE
       </span>
-      <span class="hidden md:inline border-l border-gray-800 pl-4">80% SCAMS VIA WHATSAPP/TELEGRAM. ZERO LEGITIMATE FEES.</span>
+      <span class="hidden md:inline border-l border-gray-300 dark:border-gray-800 pl-4">80% SCAMS VIA WHATSAPP/TELEGRAM. ZERO LEGITIMATE FEES.</span>
     </div>
     <div class="flex items-center gap-4">
       <span>HELPLINE: 1930</span>
-      <span class="border-l border-gray-800 pl-4">MCA SYNC: OK</span>
+      <span class="border-l border-gray-300 dark:border-gray-800 pl-4">MCA SYNC: OK</span>
     </div>
   </div>
 
   <!-- HEADER -->
-  <header class="border-b border-gray-800 bg-gray-950 px-4 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+  <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-colors duration-200">
     <div>
-      <h1 class="text-3xl font-serif text-white tracking-tight uppercase leading-none">Scam Shield <span class="text-xs font-mono text-gray-500 ml-2 tracking-widest">V2.4-TELEMETRY</span></h1>
+      <h1 class="text-3xl font-serif text-gray-950 dark:text-white tracking-tight uppercase leading-none">Scam Shield <span class="text-xs font-mono text-gray-500 ml-2 tracking-widest">V2.4-TELEMETRY</span></h1>
       <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-2">Anti-Extortion Heuristic Ingestion</div>
     </div>
-    <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
-      <button id="audioToggleBtn" onclick="toggleAudio()" class="px-4 py-2 border border-gray-800 hover:border-gray-500 hover:text-white transition-colors">
+    <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest flex-wrap">
+      <button id="themeToggleBtn" onclick="toggleTheme()" class="px-3.5 py-2 border border-gray-300 dark:border-gray-800 hover:border-gray-500 dark:hover:border-gray-500 hover:text-gray-950 dark:hover:text-white text-gray-700 dark:text-gray-400 bg-gray-50 dark:bg-transparent transition-colors flex items-center gap-1.5" title="Switch Theme (Light / Dark)">
+        <span id="themeIcon">🌙</span>
+        <span id="themeText">DARK</span>
+      </button>
+      <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3.5 py-2 border border-gray-300 dark:border-gray-800 hover:border-gray-500 dark:hover:border-gray-500 hover:text-gray-950 dark:hover:text-white text-gray-700 dark:text-gray-400 bg-gray-50 dark:bg-transparent transition-colors">
         <span id="audioText">SFX: ON</span>
       </button>
-      <button onclick="toggleModal('dtModal')" class="px-4 py-2 border border-gray-800 hover:border-gray-500 hover:text-white transition-colors">
+      <button onclick="toggleModal('dtModal')" class="px-3.5 py-2 border border-gray-300 dark:border-gray-800 hover:border-gray-500 dark:hover:border-gray-500 hover:text-gray-950 dark:hover:text-white text-gray-700 dark:text-gray-400 bg-gray-50 dark:bg-transparent transition-colors">
         FRAMEWORK
       </button>
-      <button onclick="resetConsole()" class="px-4 py-2 border border-gray-800 hover:border-gray-500 hover:text-white transition-colors">
+      <a href="https://github.com/NaitikPaliwal/Scam-sheild2.0" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 border border-gray-300 dark:border-gray-800 hover:border-gray-500 dark:hover:border-gray-500 hover:text-gray-950 dark:hover:text-white text-gray-700 dark:text-gray-400 bg-gray-50 dark:bg-transparent transition-colors flex items-center gap-1" title="View Source on GitHub">
+        GITHUB ↗
+      </a>
+      <button onclick="resetConsole()" class="px-3.5 py-2 border border-gray-300 dark:border-gray-800 hover:border-gray-500 dark:hover:border-gray-500 hover:text-gray-950 dark:hover:text-white text-gray-700 dark:text-gray-400 bg-gray-50 dark:bg-transparent transition-colors">
         RESET
       </button>
     </div>
   </header>
 
   <!-- METRICS BANNER -->
-  <div class="grid grid-cols-1 md:grid-cols-3 border-b border-gray-800 bg-gray-950 divide-y md:divide-y-0 md:divide-x divide-gray-800">
+  <div class="grid grid-cols-1 md:grid-cols-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-800 transition-colors duration-200">
     <div class="p-5 flex flex-col justify-center">
       <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Crisis Scale</div>
-      <div class="text-4xl font-serif text-white tracking-tight">₹100,000 Cr</div>
-      <div class="text-xs text-gray-400 mt-2 font-sans">Estimated unregulated placement scam industry targeting Indian graduates</div>
+      <div class="text-4xl font-serif text-gray-950 dark:text-white tracking-tight">₹100,000 Cr</div>
+      <div class="text-xs text-gray-600 dark:text-gray-400 mt-2 font-sans">Estimated unregulated placement scam industry targeting Indian graduates</div>
     </div>
     <div class="p-5 flex flex-col justify-center">
       <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Attack Surface</div>
-      <div class="text-3xl font-serif text-white tracking-tight uppercase">80% Infiltration</div>
-      <div class="text-xs text-gray-400 mt-2 font-sans">Off-campus unvetted peer channels via WhatsApp & Telegram</div>
+      <div class="text-3xl font-serif text-gray-950 dark:text-white tracking-tight uppercase">80% Infiltration</div>
+      <div class="text-xs text-gray-600 dark:text-gray-400 mt-2 font-sans">Off-campus unvetted peer channels via WhatsApp & Telegram</div>
     </div>
     <div class="p-5 flex flex-col justify-center">
       <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Typical Extortion</div>
-      <div class="text-3xl font-serif text-white tracking-tight uppercase">₹2.5K – ₹15K</div>
-      <div class="text-xs text-gray-400 mt-2 font-sans">Upfront "Security/Laptop" Fee disguised as 100% refundable</div>
+      <div class="text-3xl font-serif text-gray-950 dark:text-white tracking-tight uppercase">₹2.5K – ₹15K</div>
+      <div class="text-xs text-gray-600 dark:text-gray-400 mt-2 font-sans">Upfront "Security/Laptop" Fee disguised as 100% refundable</div>
     </div>
   </div>
 
   <!-- MAIN GRID -->
-  <main class="flex-grow grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-800 bg-gray-950">
+  <main class="flex-grow grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-800 bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
     
     <!-- LEFT PANEL: INGESTION -->
     <div class="flex flex-col p-5 gap-5">
-      <div class="flex justify-between items-end border-b border-gray-800 pb-3">
-        <h2 class="text-sm font-mono text-white uppercase tracking-widest">Offer Ingestion Console</h2>
+      <div class="flex justify-between items-end border-b border-gray-200 dark:border-gray-800 pb-3">
+        <h2 class="text-sm font-mono text-gray-950 dark:text-white uppercase tracking-widest">Offer Ingestion Console</h2>
         <span id="consoleStatusBadge" class="text-[10px] font-mono text-accent uppercase tracking-widest flex items-center gap-2">
           <span id="consoleStatusDot" class="w-1.5 h-1.5 bg-accent block animate-pulse"></span>
           <span id="consoleStatusText">SCANNER READY</span>
@@ -115,147 +150,147 @@
       <!-- Offer Link Input -->
       <div class="flex flex-col gap-1.5">
         <label for="offerLink" class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">OFFER LINK (OPTIONAL)</label>
-        <div class="relative border border-gray-800 group focus-within:border-gray-500 transition-colors bg-gray-950">
-          <input id="offerLink" type="url" oninput="handleInputChange()" placeholder="https://company.com/careers/data-analyst-intern" class="w-full bg-gray-950 text-gray-300 font-mono text-[11px] p-3 leading-relaxed focus:outline-none" />
+        <div class="relative border border-gray-300 dark:border-gray-800 group focus-within:border-gray-600 dark:focus-within:border-gray-500 transition-colors bg-white dark:bg-gray-950">
+          <input id="offerLink" type="url" oninput="handleInputChange()" placeholder="https://company.com/careers/data-analyst-intern" class="w-full bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-300 font-mono text-[11px] p-3 leading-relaxed focus:outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600" />
         </div>
         <div id="linkErrorDisplay" class="hidden text-[10px] font-mono text-accent uppercase tracking-widest pt-0.5"></div>
       </div>
 
       <!-- Textarea -->
-      <div class="relative flex-grow flex flex-col border border-gray-800 group focus-within:border-gray-500 transition-colors">
-        <textarea id="offerInput" oninput="handleInputChange()" placeholder="Paste an offer letter, email, WhatsApp or Telegram message here..." class="w-full flex-grow min-h-[260px] bg-gray-950 text-gray-300 font-mono text-[11px] leading-relaxed p-4 resize-none"></textarea>
-        <div class="absolute bottom-3 right-4 text-[10px] font-mono text-gray-500 tracking-widest bg-gray-950 pl-2">
+      <div class="relative flex-grow flex flex-col border border-gray-300 dark:border-gray-800 group focus-within:border-gray-600 dark:focus-within:border-gray-500 transition-colors bg-white dark:bg-gray-950">
+        <textarea id="offerInput" oninput="handleInputChange()" placeholder="Paste an offer letter, email, WhatsApp or Telegram message here..." class="w-full flex-grow min-h-[260px] bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-300 font-mono text-[11px] leading-relaxed p-4 resize-none placeholder:text-gray-400 dark:placeholder:text-gray-600"></textarea>
+        <div class="absolute bottom-3 right-4 text-[10px] font-mono text-gray-500 tracking-widest bg-white dark:bg-gray-950 pl-2">
           <span id="charCount">0 CHR</span> <span class="mx-1">|</span> <span id="wordCount">0 WRD</span>
         </div>
       </div>
 
       <!-- Scan Button -->
-      <button id="scanBtn" onclick="runThreatScan()" disabled class="w-full py-4 bg-white text-black font-mono text-[11px] font-bold hover:bg-gray-200 uppercase tracking-[0.2em] transition-colors disabled:opacity-50 disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed">
+      <button id="scanBtn" onclick="runThreatScan()" disabled class="w-full py-4 bg-gray-950 dark:bg-white text-white dark:text-black font-mono text-[11px] font-bold hover:bg-gray-800 dark:hover:bg-gray-200 uppercase tracking-[0.2em] transition-colors disabled:opacity-50 disabled:bg-gray-200 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 disabled:cursor-not-allowed shadow-sm">
         Run Multi-Layer Threat Scan
       </button>
 
       <!-- Protocol Tracker -->
-      <div class="border border-gray-800 p-4 font-mono text-[10px] tracking-widest">
-        <div class="flex justify-between mb-4 border-b border-gray-800 pb-2">
+      <div class="border border-gray-200 dark:border-gray-800 bg-white dark:bg-transparent p-4 font-mono text-[10px] tracking-widest transition-colors duration-200">
+        <div class="flex justify-between mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">
           <span class="text-gray-500">THREAT PROTOCOL TRACKER</span>
-          <span id="overallTrackerStatus" class="text-white">SYSTEM READY</span>
+          <span id="overallTrackerStatus" class="text-gray-900 dark:text-white font-bold">SYSTEM READY</span>
         </div>
         <div class="space-y-3">
           <div class="flex justify-between items-center" id="phase1Card">
-            <span class="text-gray-500" id="phase1Label">01 INGESTION <span class="text-gray-700 ml-2 hidden sm:inline">(LINK & TEXT)</span></span>
-            <span class="text-gray-600" id="phase1Badge">STANDBY</span>
+            <span class="text-gray-500" id="phase1Label">01 INGESTION <span class="text-gray-400 dark:text-gray-700 ml-2 hidden sm:inline">(LINK & TEXT)</span></span>
+            <span class="text-gray-400 dark:text-gray-600" id="phase1Badge">STANDBY</span>
           </div>
           <div class="flex justify-between items-center" id="phase2Card">
-            <span class="text-gray-500" id="phase2Label">02 SIGNAL CHECK <span class="text-gray-700 ml-2 hidden sm:inline">(MCA & WHOIS/RDAP)</span></span>
-            <span class="text-gray-600" id="phase2Badge">STANDBY</span>
+            <span class="text-gray-500" id="phase2Label">02 SIGNAL CHECK <span class="text-gray-400 dark:text-gray-700 ml-2 hidden sm:inline">(MCA & WHOIS/RDAP)</span></span>
+            <span class="text-gray-400 dark:text-gray-600" id="phase2Badge">STANDBY</span>
           </div>
           <div class="flex justify-between items-center" id="phase3Card">
-            <span class="text-gray-500" id="phase3Label">03 PATTERN AI <span class="text-gray-700 ml-2 hidden sm:inline">(NLP SCORING)</span></span>
-            <span class="text-gray-600" id="phase3Badge">STANDBY</span>
+            <span class="text-gray-500" id="phase3Label">03 PATTERN AI <span class="text-gray-400 dark:text-gray-700 ml-2 hidden sm:inline">(NLP SCORING)</span></span>
+            <span class="text-gray-400 dark:text-gray-600" id="phase3Badge">STANDBY</span>
           </div>
         </div>
       </div>
 
       <!-- Terminal -->
-      <div class="border border-gray-800 bg-gray-950 p-3 h-28 overflow-y-auto font-mono text-[10px] tracking-widest text-gray-500 flex flex-col gap-1.5" id="terminalLog">
+      <div class="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-3 h-28 overflow-y-auto font-mono text-[10px] tracking-widest text-gray-500 flex flex-col gap-1.5 transition-colors duration-200" id="terminalLog">
         <div>> Scam Shield heuristic engine v2.4 initialized.</div>
         <div>> Link verification & RDAP telemetry connector online.</div>
-        <div class="text-white">> Ready. Provide an offer link, paste offer text, or both to evaluate threats.</div>
+        <div class="text-gray-900 dark:text-white">> Ready. Provide an offer link, paste offer text, or both to evaluate threats.</div>
       </div>
     </div>
 
     <!-- RIGHT PANEL: DASHBOARD -->
     <div class="flex flex-col p-5 gap-5">
-      <div class="flex justify-between items-end border-b border-gray-800 pb-3">
-        <h2 class="text-sm font-mono text-white uppercase tracking-widest">Intelligence Dashboard</h2>
+      <div class="flex justify-between items-end border-b border-gray-200 dark:border-gray-800 pb-3">
+        <h2 class="text-sm font-mono text-gray-950 dark:text-white uppercase tracking-widest">Intelligence Dashboard</h2>
         <span id="scanTimestamp" class="text-[10px] font-mono text-gray-500 tracking-widest">IDLE</span>
       </div>
 
       <!-- Verdict Card -->
-      <div id="verdictCard" class="border border-gray-800 p-6 flex flex-col gap-6 transition-colors duration-300 bg-gray-950">
+      <div id="verdictCard" class="border border-gray-200 dark:border-gray-800 p-6 flex flex-col gap-6 transition-colors duration-300 bg-white dark:bg-gray-950">
         <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
           <div>
             <div id="verdictSeverity" class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">STANDBY EVALUATION</div>
-            <div id="verdictTitle" class="text-4xl font-serif text-white tracking-tight leading-none uppercase">Awaiting Data</div>
+            <div id="verdictTitle" class="text-4xl font-serif text-gray-950 dark:text-white tracking-tight leading-none uppercase">Awaiting Data</div>
           </div>
           <div class="sm:text-right shrink-0">
             <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Threat Likelihood</div>
-            <div id="riskPercentageText" class="text-5xl font-mono text-white tracking-tighter leading-none">--%</div>
+            <div id="riskPercentageText" class="text-5xl font-mono text-gray-950 dark:text-white tracking-tighter leading-none">--%</div>
           </div>
         </div>
         
-        <div id="verdictAdvisory" class="text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed">
+        <div id="verdictAdvisory" class="text-xs font-sans text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 pt-4 leading-relaxed">
           Provide an offer link, paste an offer letter/message into the console, and run a scan to classify threat indicators in real time.
         </div>
 
         <!-- Action Boxes -->
-        <div id="scamActionBox" class="hidden flex flex-wrap gap-3 border-t border-gray-800 pt-4">
-          <div class="w-full text-[10px] font-mono text-white mb-1 tracking-widest">CONTAINMENT PROTOCOL: DO NOT SEND MONEY</div>
-          <button onclick="openComplaintModal()" class="px-4 py-2 border border-accent text-accent text-[10px] font-mono hover:bg-accent hover:text-white transition-colors uppercase tracking-widest">
+        <div id="scamActionBox" class="hidden flex flex-wrap gap-3 border-t border-accent/40 dark:border-gray-800 pt-4">
+          <div class="w-full text-[10px] font-mono text-accent dark:text-white mb-1 tracking-widest font-bold">CONTAINMENT PROTOCOL: DO NOT SEND MONEY</div>
+          <button onclick="openComplaintModal()" class="px-4 py-2 border border-accent bg-accent text-white text-[10px] font-mono hover:bg-accent/90 transition-colors uppercase tracking-widest">
             Draft 1930 Complaint
           </button>
-          <button onclick="exportThreatDossier()" class="px-4 py-2 border border-gray-600 text-white text-[10px] font-mono hover:bg-gray-800 transition-colors uppercase tracking-widest">
+          <button onclick="exportThreatDossier()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-[10px] font-mono hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors uppercase tracking-widest bg-white dark:bg-transparent">
             Export JSON Dossier
           </button>
         </div>
         
-        <div id="safeActionBox" class="hidden border-t border-gray-800 pt-4">
-          <div class="text-[10px] font-mono text-white mb-1 tracking-widest">RECOMMENDED STEPS:</div>
-          <div class="text-xs text-gray-400 font-sans">Safe to cross-check with College Placement Portal & verify recruiter on LinkedIn.</div>
+        <div id="safeActionBox" class="hidden border-t border-gray-200 dark:border-gray-800 pt-4">
+          <div class="text-[10px] font-mono text-gray-900 dark:text-white mb-1 tracking-widest font-bold">RECOMMENDED STEPS:</div>
+          <div class="text-xs text-gray-600 dark:text-gray-400 font-sans">Safe to cross-check with College Placement Portal & verify recruiter on LinkedIn.</div>
         </div>
       </div>
 
       <!-- Metrics -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-gray-800 border border-gray-800 shrink-0">
-        <div class="bg-gray-950 p-3">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-gray-200 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 shrink-0">
+        <div class="bg-white dark:bg-gray-950 p-3">
           <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">Domain Trust</div>
-          <div id="metricDomain" class="text-[11px] font-mono text-white truncate">Unchecked</div>
+          <div id="metricDomain" class="text-[11px] font-mono text-gray-950 dark:text-white truncate">Unchecked</div>
         </div>
-        <div class="bg-gray-950 p-3">
+        <div class="bg-white dark:bg-gray-950 p-3">
           <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">MCA Record</div>
-          <div id="metricMCA" class="text-[11px] font-mono text-white truncate">Unchecked</div>
+          <div id="metricMCA" class="text-[11px] font-mono text-gray-950 dark:text-white truncate">Unchecked</div>
         </div>
-        <div class="bg-gray-950 p-3">
+        <div class="bg-white dark:bg-gray-950 p-3">
           <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">Payment Req</div>
-          <div id="metricPayment" class="text-[11px] font-mono text-white truncate">Unchecked</div>
+          <div id="metricPayment" class="text-[11px] font-mono text-gray-950 dark:text-white truncate">Unchecked</div>
         </div>
-        <div class="bg-gray-950 p-3">
+        <div class="bg-white dark:bg-gray-950 p-3">
           <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">NLP Coercion</div>
-          <div id="metricNLP" class="text-[11px] font-mono text-white truncate">Unchecked</div>
+          <div id="metricNLP" class="text-[11px] font-mono text-gray-950 dark:text-white truncate">Unchecked</div>
         </div>
       </div>
 
       <!-- Flags -->
-      <div class="border border-gray-800 p-5 flex-grow flex flex-col">
-        <div class="flex justify-between items-center mb-3 border-b border-gray-800 pb-2">
+      <div class="border border-gray-200 dark:border-gray-800 bg-white dark:bg-transparent p-5 flex-grow flex flex-col transition-colors duration-200">
+        <div class="flex justify-between items-center mb-3 border-b border-gray-200 dark:border-gray-800 pb-2">
           <span class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Forensic Indicators</span>
-          <span id="flaggedCount" class="text-[10px] font-mono text-white tracking-widest">0 FLAGS</span>
+          <span id="flaggedCount" class="text-[10px] font-mono text-gray-950 dark:text-white tracking-widest font-bold">0 FLAGS</span>
         </div>
 
         <!-- Telemetry Header Line -->
-        <div id="telemetryHeaderLine" class="hidden text-[10px] font-mono text-gray-400 border-b border-gray-800 pb-2 mb-3 tracking-widest"></div>
+        <div id="telemetryHeaderLine" class="hidden text-[10px] font-mono text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800 pb-2 mb-3 tracking-widest"></div>
 
         <!-- Unreadable Notice Line -->
-        <div id="unreadableNoticeLine" class="hidden text-[11px] text-gray-500 font-sans italic border-b border-gray-800 pb-2 mb-3"></div>
+        <div id="unreadableNoticeLine" class="hidden text-[11px] text-gray-500 font-sans italic border-b border-gray-200 dark:border-gray-800 pb-2 mb-3"></div>
 
         <div id="flaggedTagsContainer" class="flex flex-col gap-2">
-          <div class="text-[11px] text-gray-600 font-sans italic">No indicators flagged. Run a scan to trigger multi-vector analysis.</div>
+          <div class="text-[11px] text-gray-500 dark:text-gray-600 font-sans italic">No indicators flagged. Run a scan to trigger multi-vector analysis.</div>
         </div>
 
-        <div class="text-[10px] font-mono text-gray-500 pt-3 border-t border-gray-800 mt-4">
+        <div class="text-[10px] font-mono text-gray-500 pt-3 border-t border-gray-200 dark:border-gray-800 mt-4">
           Heuristic analysis, not a guarantee. If in doubt, confirm with the company directly or report scams at 1930 / cybercrime.gov.in.
         </div>
       </div>
 
       <!-- Chart -->
-      <div class="border border-gray-800 p-5 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="border border-gray-200 dark:border-gray-800 bg-white dark:bg-transparent p-5 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-6 transition-colors duration-200">
         <div class="w-full sm:w-1/2 flex flex-col">
           <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-4">Campus Scam Vectors</div>
-          <div class="flex flex-col gap-3 text-[10px] font-mono text-gray-400 uppercase tracking-widest">
-            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-200 block"></span> Direct Chat</span> <span class="text-white">45%</span></div>
-            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-400 block"></span> Training</span> <span class="text-white">30%</span></div>
-            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-600 block"></span> Phishing</span> <span class="text-white">15%</span></div>
-            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-800 block"></span> Tasks</span> <span class="text-white">10%</span></div>
+          <div class="flex flex-col gap-3 text-[10px] font-mono text-gray-600 dark:text-gray-400 uppercase tracking-widest">
+            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-900 dark:bg-gray-200 block border border-gray-300 dark:border-transparent"></span> Direct Chat</span> <span class="text-gray-900 dark:text-white font-bold">45%</span></div>
+            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-700 dark:bg-gray-400 block"></span> Training</span> <span class="text-gray-900 dark:text-white font-bold">30%</span></div>
+            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-400 dark:bg-gray-600 block"></span> Phishing</span> <span class="text-gray-900 dark:text-white font-bold">15%</span></div>
+            <div class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="w-2 h-2 bg-gray-200 dark:bg-gray-800 block border border-gray-300 dark:border-transparent"></span> Tasks</span> <span class="text-gray-900 dark:text-white font-bold">10%</span></div>
           </div>
         </div>
         <div class="w-full sm:w-1/2 h-32 relative flex justify-center">
@@ -267,50 +302,50 @@
   </main>
 
   <!-- MODAL: Framework -->
-  <div id="dtModal" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4">
-    <div class="bg-gray-950 border border-gray-800 w-full max-w-2xl p-8 flex flex-col gap-6 shadow-2xl">
-      <div class="flex justify-between items-start border-b border-gray-800 pb-4">
+  <div id="dtModal" class="fixed inset-0 z-50 hidden bg-black/60 dark:bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 w-full max-w-2xl p-8 flex flex-col gap-6 shadow-2xl transition-colors duration-200">
+      <div class="flex justify-between items-start border-b border-gray-200 dark:border-gray-800 pb-4">
         <div>
-          <h3 class="text-2xl font-serif text-white uppercase tracking-tight">Design Thinking Dossier</h3>
+          <h3 class="text-2xl font-serif text-gray-950 dark:text-white uppercase tracking-tight">Design Thinking Dossier</h3>
           <div class="text-[10px] font-mono text-gray-500 tracking-widest mt-1">PROJECT: SCAM SHIELD</div>
         </div>
-        <button onclick="toggleModal('dtModal')" class="text-gray-500 hover:text-white font-mono text-xs tracking-widest px-2 py-1 border border-transparent hover:border-gray-700">[CLOSE]</button>
+        <button onclick="toggleModal('dtModal')" class="text-gray-500 hover:text-gray-950 dark:hover:text-white font-mono text-xs tracking-widest px-2 py-1 border border-transparent hover:border-gray-300 dark:hover:border-gray-700">[CLOSE]</button>
       </div>
-      <div class="space-y-6 text-xs text-gray-300 font-sans leading-relaxed">
+      <div class="space-y-6 text-xs text-gray-700 dark:text-gray-300 font-sans leading-relaxed">
         <div>
-          <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">01 EMPATHIZE</div>
-          <div class="pl-4 border-l border-gray-800 text-gray-400">College students face fierce placement competition. FOMO makes them vulnerable to unsolicited WhatsApp/Telegram offers with high stipends asking for refundable deposits.</div>
+          <div class="font-mono text-gray-950 dark:text-white font-bold mb-1 tracking-widest text-[10px]">01 EMPATHIZE</div>
+          <div class="pl-4 border-l border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400">College students face fierce placement competition. FOMO makes them vulnerable to unsolicited WhatsApp/Telegram offers with high stipends asking for refundable deposits.</div>
         </div>
         <div>
-          <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">02 DEFINE</div>
-          <div class="pl-4 border-l border-gray-800 text-gray-400">Students have no instant tool to verify whether an offer letter, CIN code, or recruiter domain is genuine before transferring money via UPI.</div>
+          <div class="font-mono text-gray-950 dark:text-white font-bold mb-1 tracking-widest text-[10px]">02 DEFINE</div>
+          <div class="pl-4 border-l border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400">Students have no instant tool to verify whether an offer letter, CIN code, or recruiter domain is genuine before transferring money via UPI.</div>
         </div>
         <div>
-          <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">03 IDEATE</div>
-          <div class="pl-4 border-l border-gray-800 text-gray-400">A multi-layered heuristic and domain telemetry engine: Ingestion (normalizes links & text), Signal Check (RDAP age, SSRF safety, lookalikes & MCA), Pattern AI (evaluates upfront fees and coercion).</div>
+          <div class="font-mono text-gray-950 dark:text-white font-bold mb-1 tracking-widest text-[10px]">03 IDEATE</div>
+          <div class="pl-4 border-l border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400">A multi-layered heuristic and domain telemetry engine: Ingestion (normalizes links & text), Signal Check (RDAP age, SSRF safety, lookalikes & MCA), Pattern AI (evaluates upfront fees and coercion).</div>
         </div>
         <div>
-          <div class="font-mono text-white font-bold mb-1 tracking-widest text-[10px]">04 TEST</div>
-          <div class="pl-4 border-l border-gray-800 text-gray-400">Empowers students to halt transactions, download formatted evidence for National Cyber Crime Portal (1930), and alert campus placement directors automatically.</div>
+          <div class="font-mono text-gray-950 dark:text-white font-bold mb-1 tracking-widest text-[10px]">04 TEST</div>
+          <div class="pl-4 border-l border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400">Empowers students to halt transactions, download formatted evidence for National Cyber Crime Portal (1930), and alert campus placement directors automatically.</div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- MODAL: Complaint -->
-  <div id="complaintModal" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4">
-    <div class="bg-gray-950 border border-gray-800 w-full max-w-2xl p-8 flex flex-col gap-6 shadow-2xl">
-      <div class="flex justify-between items-start border-b border-gray-800 pb-4">
+  <div id="complaintModal" class="fixed inset-0 z-50 hidden bg-black/60 dark:bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 w-full max-w-2xl p-8 flex flex-col gap-6 shadow-2xl transition-colors duration-200">
+      <div class="flex justify-between items-start border-b border-gray-200 dark:border-gray-800 pb-4">
         <div>
-          <h3 class="text-2xl font-serif text-white uppercase tracking-tight">1930 Portal Draft</h3>
+          <h3 class="text-2xl font-serif text-gray-950 dark:text-white uppercase tracking-tight">1930 Portal Draft</h3>
           <div class="text-[10px] font-mono text-gray-500 tracking-widest mt-1">NATIONAL CYBER CRIME COMPLIANT</div>
         </div>
-        <button onclick="toggleModal('complaintModal')" class="text-gray-500 hover:text-white font-mono text-xs tracking-widest px-2 py-1 border border-transparent hover:border-gray-700">[CLOSE]</button>
+        <button onclick="toggleModal('complaintModal')" class="text-gray-500 hover:text-gray-950 dark:hover:text-white font-mono text-xs tracking-widest px-2 py-1 border border-transparent hover:border-gray-300 dark:hover:border-gray-700">[CLOSE]</button>
       </div>
-      <textarea id="complaintDraftText" rows="12" readonly class="w-full bg-gray-900 border border-gray-800 text-gray-300 text-[11px] font-mono p-4 resize-none focus:outline-none"></textarea>
-      <div class="flex justify-between items-center border-t border-gray-800 pt-4">
-        <span class="text-[10px] text-accent font-mono tracking-widest">DIAL 1930 IMMEDIATELY FOR FINANCIAL FREEZE</span>
-        <button id="copyComplaintBtn" onclick="copyComplaintToClipboard()" class="px-6 py-3 bg-white text-black font-mono text-[10px] font-bold hover:bg-gray-200 uppercase tracking-widest transition-colors">
+      <textarea id="complaintDraftText" rows="12" readonly class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-300 text-[11px] font-mono p-4 resize-none focus:outline-none"></textarea>
+      <div class="flex justify-between items-center border-t border-gray-200 dark:border-gray-800 pt-4">
+        <span class="text-[10px] text-accent font-mono tracking-widest font-bold">DIAL 1930 IMMEDIATELY FOR FINANCIAL FREEZE</span>
+        <button id="copyComplaintBtn" onclick="copyComplaintToClipboard()" class="px-6 py-3 bg-gray-950 dark:bg-white text-white dark:text-black font-mono text-[10px] font-bold hover:bg-gray-800 dark:hover:bg-gray-200 uppercase tracking-widest transition-colors shadow-sm">
           <span id="copyComplaintBtnText">COPY DRAFT TEXT</span>
         </button>
       </div>
@@ -319,12 +354,116 @@
 
   <!-- JAVASCRIPT -->
   <script>
-    // System Settings
+    // System Settings & State
     let soundEnabled = true;
     let isScanning = false;
     let audioCtx = null;
     let lastScanData = null;
+    let scamChartInstance = null;
 
+    // ---------- Dual Theme Management ----------
+    function applyTheme(theme) {
+      const isDark = (theme === 'dark');
+      const html = document.documentElement;
+      
+      if (isDark) {
+        html.classList.add('dark');
+        html.classList.remove('light');
+      } else {
+        html.classList.remove('dark');
+        html.classList.add('light');
+      }
+      
+      try {
+        localStorage.setItem('scam_shield_theme', theme);
+      } catch (e) {}
+
+      const themeIcon = document.getElementById('themeIcon');
+      const themeText = document.getElementById('themeText');
+      if (themeIcon) themeIcon.textContent = isDark ? '🌙' : '☀️';
+      if (themeText) themeText.textContent = isDark ? 'DARK' : 'LIGHT';
+
+      if (scamChartInstance) {
+        updateChartTheme(isDark);
+      }
+
+      // Re-apply verdict card styling according to current state and new theme
+      refreshVerdictTheme(isDark);
+    }
+
+    function toggleTheme() {
+      initAudio();
+      playTone(500, 'sine', 0.08);
+      const isCurrentlyDark = document.documentElement.classList.contains('dark');
+      const nextTheme = isCurrentlyDark ? 'light' : 'dark';
+      applyTheme(nextTheme);
+      logTelemetry(`Interface theme switched to ${nextTheme.toUpperCase()} mode.`);
+    }
+
+    function initTheme() {
+      let saved = null;
+      try {
+        saved = localStorage.getItem('scam_shield_theme');
+      } catch (e) {}
+
+      if (saved === 'light' || saved === 'dark') {
+        applyTheme(saved);
+      } else {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(prefersDark ? 'dark' : 'light');
+      }
+    }
+
+    function refreshVerdictTheme(isDark) {
+      const vc = document.getElementById('verdictCard');
+      if (!vc) return;
+
+      if (!lastScanData) {
+        // Standby evaluation state
+        vc.className = isDark
+          ? "border border-gray-800 p-6 flex flex-col gap-6 transition-colors duration-300 bg-gray-950"
+          : "border border-gray-200 p-6 flex flex-col gap-6 transition-colors duration-300 bg-white";
+        document.getElementById('verdictSeverity').className = "text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2";
+        document.getElementById('verdictTitle').className = isDark
+          ? "text-4xl font-serif text-white tracking-tight leading-none uppercase"
+          : "text-4xl font-serif text-gray-950 tracking-tight leading-none uppercase";
+        document.getElementById('riskPercentageText').className = isDark
+          ? "text-5xl font-mono text-white tracking-tighter leading-none"
+          : "text-5xl font-mono text-gray-950 tracking-tighter leading-none";
+        document.getElementById('verdictAdvisory').className = isDark
+          ? "text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed"
+          : "text-xs font-sans text-gray-600 border-t border-gray-200 pt-4 leading-relaxed";
+      } else {
+        const isHighRisk = lastScanData.finalScore >= 35;
+        if (isHighRisk) {
+          vc.className = isDark
+            ? "border border-accent p-6 flex flex-col gap-6 transition-colors duration-300 bg-[#1a0500]"
+            : "border border-accent p-6 flex flex-col gap-6 transition-colors duration-300 bg-[#fff5f2]";
+          document.getElementById('verdictSeverity').className = "text-[10px] font-mono text-accent uppercase tracking-widest mb-2 font-bold";
+          document.getElementById('verdictTitle').className = "text-4xl font-serif text-accent tracking-tight leading-none uppercase";
+          document.getElementById('riskPercentageText').className = "text-5xl font-mono text-accent tracking-tighter leading-none";
+          document.getElementById('verdictAdvisory').className = "text-xs font-sans text-accent border-t border-accent/30 pt-4 leading-relaxed";
+        } else {
+          vc.className = isDark
+            ? "border border-white p-6 flex flex-col gap-6 transition-colors duration-300 bg-gray-950"
+            : "border border-gray-950 p-6 flex flex-col gap-6 transition-colors duration-300 bg-white";
+          document.getElementById('verdictSeverity').className = isDark
+            ? "text-[10px] font-mono text-gray-400 uppercase tracking-widest mb-2"
+            : "text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2";
+          document.getElementById('verdictTitle').className = isDark
+            ? "text-4xl font-serif text-white tracking-tight leading-none uppercase"
+            : "text-4xl font-serif text-gray-950 tracking-tight leading-none uppercase";
+          document.getElementById('riskPercentageText').className = isDark
+            ? "text-5xl font-mono text-white tracking-tighter leading-none"
+            : "text-5xl font-mono text-gray-950 tracking-tighter leading-none";
+          document.getElementById('verdictAdvisory').className = isDark
+            ? "text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed"
+            : "text-xs font-sans text-gray-600 border-t border-gray-200 pt-4 leading-relaxed";
+        }
+      }
+    }
+
+    // ---------- Audio SFX Engine ----------
     function initAudio() {
       if (!audioCtx) {
         try {
@@ -419,15 +558,13 @@
       handleInputChange();
       resetProtocolTracker();
       
-      const vc = document.getElementById('verdictCard');
-      vc.className = "border border-gray-800 p-6 flex flex-col gap-6 transition-colors duration-300 bg-gray-950";
-      document.getElementById('verdictSeverity').className = "text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2";
+      lastScanData = null;
+      const isDark = document.documentElement.classList.contains('dark');
+      refreshVerdictTheme(isDark);
+
       document.getElementById('verdictSeverity').textContent = "STANDBY EVALUATION";
       document.getElementById('verdictTitle').textContent = "AWAITING DATA";
-      document.getElementById('verdictTitle').className = "text-4xl font-serif text-white tracking-tight leading-none uppercase";
       document.getElementById('riskPercentageText').textContent = "--%";
-      document.getElementById('riskPercentageText').className = "text-5xl font-mono text-white tracking-tighter leading-none";
-      document.getElementById('verdictAdvisory').className = "text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed";
       document.getElementById('verdictAdvisory').textContent = 'Provide an offer link, paste an offer letter/message into the console, and run a scan to classify threat indicators in real time.';
       
       ['metricDomain', 'metricMCA', 'metricPayment', 'metricNLP'].forEach(id => {
@@ -436,7 +573,7 @@
         el.removeAttribute('title');
       });
       
-      document.getElementById('flaggedTagsContainer').innerHTML = '<div class="text-[11px] text-gray-600 font-sans italic">No indicators flagged. Run a scan to trigger multi-vector analysis.</div>';
+      document.getElementById('flaggedTagsContainer').innerHTML = '<div class="text-[11px] text-gray-500 dark:text-gray-600 font-sans italic">No indicators flagged. Run a scan to trigger multi-vector analysis.</div>';
       document.getElementById('flaggedCount').textContent = "0 FLAGS";
       
       document.getElementById('scamActionBox').classList.add('hidden');
@@ -445,18 +582,19 @@
       document.getElementById('scanTimestamp').textContent = "IDLE";
       document.getElementById('complaintDraftText').value = '';
       document.getElementById('consoleStatusText').textContent = "SCANNER READY";
-      lastScanData = null;
 
       logTelemetry('Console state re-initialized.');
     }
 
     function resetProtocolTracker() {
-      document.getElementById('overallTrackerStatus').textContent = 'SYSTEM READY';
-      document.getElementById('overallTrackerStatus').className = 'text-white';
+      const isDark = document.documentElement.classList.contains('dark');
+      const trackerStatus = document.getElementById('overallTrackerStatus');
+      trackerStatus.textContent = 'SYSTEM READY';
+      trackerStatus.className = isDark ? 'text-white font-bold' : 'text-gray-900 font-bold';
       
       for (let i = 1; i <= 3; i++) {
         document.getElementById(`phase${i}Label`).className = "text-gray-500";
-        document.getElementById(`phase${i}Badge`).className = "text-gray-600";
+        document.getElementById(`phase${i}Badge`).className = isDark ? "text-gray-600" : "text-gray-400";
         document.getElementById(`phase${i}Badge`).textContent = "STANDBY";
       }
     }
@@ -465,8 +603,9 @@
       const log = document.getElementById('terminalLog');
       const now = new Date();
       const timeStr = now.toTimeString().split(' ')[0];
+      const isDark = document.documentElement.classList.contains('dark');
       const line = document.createElement('div');
-      line.innerHTML = `<span class="text-gray-600">[${timeStr}]</span> <span class="text-gray-300">${msg}</span>`;
+      line.innerHTML = `<span class="${isDark ? 'text-gray-600' : 'text-gray-400'}">[${timeStr}]</span> <span class="${isDark ? 'text-gray-300' : 'text-gray-800'}">${msg}</span>`;
       log.appendChild(line);
       log.scrollTop = log.scrollHeight;
     }
@@ -682,6 +821,9 @@
       errDisplay.classList.add('hidden');
 
       resetProtocolTracker();
+      const isDark = document.documentElement.classList.contains('dark');
+      const activeTextColor = isDark ? 'text-white' : 'text-gray-950';
+
       document.getElementById('overallTrackerStatus').textContent = 'LAYER 1/3 ACTIVE';
       
       const analyzedSourcesDesc = (linkInput && textInput)
@@ -693,8 +835,8 @@
       logTelemetry(`INITIALIZING SCAN: Analyzing ${analyzedSourcesDesc}...`);
       
       // Phase 1 Ingestion
-      document.getElementById('phase1Label').className = "text-white font-bold";
-      document.getElementById('phase1Badge').className = "text-white";
+      document.getElementById('phase1Label').className = `${activeTextColor} font-bold`;
+      document.getElementById('phase1Badge').className = activeTextColor;
       document.getElementById('phase1Badge').textContent = "PROCESSING...";
       playScanBeep(1);
 
@@ -713,32 +855,32 @@
         // Animate tracker steps while awaiting backend
         await new Promise(r => setTimeout(r, 400));
         
-        document.getElementById('phase1Label').className = "text-gray-400";
-        document.getElementById('phase1Badge').className = "text-gray-500";
+        document.getElementById('phase1Label').className = isDark ? "text-gray-400" : "text-gray-600";
+        document.getElementById('phase1Badge').className = isDark ? "text-gray-500" : "text-gray-500";
         document.getElementById('phase1Badge').textContent = "DONE (14ms)";
         
         document.getElementById('overallTrackerStatus').textContent = 'LAYER 2/3 ACTIVE';
-        document.getElementById('phase2Label').className = "text-white font-bold";
-        document.getElementById('phase2Badge').className = "text-white";
+        document.getElementById('phase2Label').className = `${activeTextColor} font-bold`;
+        document.getElementById('phase2Badge').className = activeTextColor;
         document.getElementById('phase2Badge').textContent = "QUERYING RDAP & MCA...";
         playScanBeep(2);
 
         linkResult = await linkPromise;
 
-        document.getElementById('phase2Label').className = "text-gray-400";
-        document.getElementById('phase2Badge').className = "text-gray-500";
+        document.getElementById('phase2Label').className = isDark ? "text-gray-400" : "text-gray-600";
+        document.getElementById('phase2Badge').className = isDark ? "text-gray-500" : "text-gray-500";
         document.getElementById('phase2Badge').textContent = linkResult ? "RDAP RESOLVED" : "SIGNAL READY";
 
         document.getElementById('overallTrackerStatus').textContent = 'LAYER 3/3 ACTIVE';
-        document.getElementById('phase3Label').className = "text-white font-bold";
-        document.getElementById('phase3Badge').className = "text-white";
+        document.getElementById('phase3Label').className = `${activeTextColor} font-bold`;
+        document.getElementById('phase3Badge').className = activeTextColor;
         document.getElementById('phase3Badge').textContent = "SCORING...";
         playScanBeep(3);
 
         await new Promise(r => setTimeout(r, 400));
 
-        document.getElementById('phase3Label').className = "text-gray-400";
-        document.getElementById('phase3Badge').className = "text-gray-500";
+        document.getElementById('phase3Label').className = isDark ? "text-gray-400" : "text-gray-600";
+        document.getElementById('phase3Badge').className = isDark ? "text-gray-500" : "text-gray-500";
         document.getElementById('phase3Badge').textContent = "CLASSIFIED";
         
         document.getElementById('overallTrackerStatus').textContent = 'ALL LAYERS RESOLVED';
@@ -904,35 +1046,34 @@
 
       logTelemetry(`VERDICT: ${level.toUpperCase()} RISK (${finalScore}%). Inputs: ${sourcesDesc}. Flags: ${dangerCount}.`);
 
-      // Update Verdict Card
-      const vc = document.getElementById('verdictCard');
+      lastScanData = {
+        title,
+        finalScore,
+        sourcesDesc,
+        linkData,
+        text,
+        dangerFlags,
+        positives
+      };
+
+      // Update Verdict Card with theme awareness
+      const isDark = document.documentElement.classList.contains('dark');
       const scanTimestamp = document.getElementById('scanTimestamp');
       scanTimestamp.textContent = new Date().toTimeString().split(' ')[0] + ' IST';
 
-      if (isHighRisk) {
-        vc.className = "border border-accent p-6 flex flex-col gap-6 transition-colors duration-300 bg-[#1a0500]";
-        document.getElementById('verdictSeverity').className = "text-[10px] font-mono text-accent uppercase tracking-widest mb-2 font-bold";
-        document.getElementById('verdictTitle').className = "text-4xl font-serif text-accent tracking-tight leading-none uppercase";
-        document.getElementById('riskPercentageText').className = "text-5xl font-mono text-accent tracking-tighter leading-none";
-        document.getElementById('verdictAdvisory').className = "text-xs font-sans text-accent border-t border-accent/30 pt-4 leading-relaxed";
-        
-        document.getElementById('scamActionBox').classList.remove('hidden');
-        document.getElementById('safeActionBox').classList.add('hidden');
-      } else {
-        vc.className = "border border-white p-6 flex flex-col gap-6 transition-colors duration-300 bg-gray-950";
-        document.getElementById('verdictSeverity').className = "text-[10px] font-mono text-gray-400 uppercase tracking-widest mb-2";
-        document.getElementById('verdictTitle').className = "text-4xl font-serif text-white tracking-tight leading-none uppercase";
-        document.getElementById('riskPercentageText').className = "text-5xl font-mono text-white tracking-tighter leading-none";
-        document.getElementById('verdictAdvisory').className = "text-xs font-sans text-gray-400 border-t border-gray-800 pt-4 leading-relaxed";
-        
-        document.getElementById('scamActionBox').classList.add('hidden');
-        document.getElementById('safeActionBox').classList.remove('hidden');
-      }
-
+      refreshVerdictTheme(isDark);
       document.getElementById('verdictSeverity').textContent = severityBadge;
       document.getElementById('verdictTitle').textContent = title;
       document.getElementById('riskPercentageText').textContent = `${finalScore}%`;
       document.getElementById('verdictAdvisory').textContent = advisory;
+
+      if (isHighRisk) {
+        document.getElementById('scamActionBox').classList.remove('hidden');
+        document.getElementById('safeActionBox').classList.add('hidden');
+      } else {
+        document.getElementById('scamActionBox').classList.add('hidden');
+        document.getElementById('safeActionBox').classList.remove('hidden');
+      }
 
       // Update Indicator Metric Cards
       // 1. DOMAIN TRUST
@@ -1013,19 +1154,19 @@
       document.getElementById('flaggedCount').textContent = `${dangerCount} FLAGS`;
 
       if (!dangerFlags.length && !positives.length && !flags.filter(f => f.kind === 'info').length) {
-        tc.innerHTML = '<div class="text-[11px] text-gray-600 font-sans italic">No threat indicators flagged across evaluated sources.</div>';
+        tc.innerHTML = '<div class="text-[11px] text-gray-500 dark:text-gray-600 font-sans italic">No threat indicators flagged across evaluated sources.</div>';
       }
 
       // Render Danger Flags
       dangerFlags.forEach(t => {
         const d = document.createElement('div');
-        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-accent border-accent/50 bg-accent/10';
+        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-accent border-accent/50 bg-accent/10 transition-colors';
         d.innerHTML = `
           <span class="font-bold shrink-0">[X]</span>
           <div class="min-w-0 flex-grow break-words">
-            <span class="px-1 py-0.5 text-[9px] font-mono border border-accent/40 bg-black/40 text-accent mr-1.5 uppercase">${t.source}</span>
+            <span class="px-1 py-0.5 text-[9px] font-mono border border-accent/40 bg-accent/15 dark:bg-black/40 text-accent mr-1.5 uppercase font-bold">${t.source}</span>
             <span class="font-bold uppercase">${t.label}:</span>
-            <span class="normal-case text-gray-300 font-sans ml-1">"${t.evidence}"</span>
+            <span class="normal-case text-gray-800 dark:text-gray-300 font-sans ml-1">"${t.evidence}"</span>
           </div>
         `;
         tc.appendChild(d);
@@ -1034,12 +1175,12 @@
       // Render Safe / Positive Signals
       positives.forEach(p => {
         const d = document.createElement('div');
-        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-gray-300 border-gray-700 bg-gray-900/80';
+        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900/80 transition-colors';
         d.innerHTML = `
-          <span class="font-bold shrink-0 text-white">[✓]</span>
+          <span class="font-bold shrink-0 text-emerald-600 dark:text-white">[✓]</span>
           <div class="min-w-0 flex-grow break-words">
-            <span class="px-1 py-0.5 text-[9px] font-mono border border-gray-700 bg-black/40 text-gray-400 mr-1.5 uppercase">${p.source}</span>
-            <span class="text-white">${p.text}</span>
+            <span class="px-1 py-0.5 text-[9px] font-mono border border-gray-300 dark:border-gray-700 bg-white dark:bg-black/40 text-gray-600 dark:text-gray-400 mr-1.5 uppercase">${p.source}</span>
+            <span class="text-gray-950 dark:text-white">${p.text}</span>
           </div>
         `;
         tc.appendChild(d);
@@ -1048,27 +1189,17 @@
       // Render Info Flags
       flags.filter(f => f.kind === 'info').forEach(info => {
         const d = document.createElement('div');
-        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-gray-400 border-gray-800 bg-gray-950';
+        d.className = 'flex items-start gap-2.5 px-3 py-2 border text-[10px] font-mono tracking-widest text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 transition-colors';
         d.innerHTML = `
           <span class="font-bold shrink-0 text-gray-500">[?]</span>
           <div class="min-w-0 flex-grow break-words">
-            <span class="px-1 py-0.5 text-[9px] font-mono border border-gray-800 bg-black/40 text-gray-500 mr-1.5 uppercase">${info.source}</span>
+            <span class="px-1 py-0.5 text-[9px] font-mono border border-gray-300 dark:border-gray-800 bg-white dark:bg-black/40 text-gray-500 mr-1.5 uppercase">${info.source}</span>
             <span class="uppercase">${info.label}:</span>
-            <span class="normal-case text-gray-400 font-sans ml-1">"${info.evidence}"</span>
+            <span class="normal-case text-gray-600 dark:text-gray-400 font-sans ml-1">"${info.evidence}"</span>
           </div>
         `;
         tc.appendChild(d);
       });
-
-      lastScanData = {
-        title,
-        finalScore,
-        sourcesDesc,
-        linkData,
-        text,
-        dangerFlags,
-        positives
-      };
 
       prepareComplaintDraft(rawLinkInput, text, linkData, dangerFlags);
     }
@@ -1142,18 +1273,35 @@ REQUESTED CYBER CELL ACTIONS:
       a.click(); URL.revokeObjectURL(url);
     }
 
+    function updateChartTheme(isDark) {
+      if (!scamChartInstance) return;
+      scamChartInstance.data.datasets[0].borderColor = isDark ? '#09090b' : '#ffffff';
+      scamChartInstance.data.datasets[0].backgroundColor = isDark
+        ? ['#e4e4e7', '#a1a1aa', '#52525b', '#27272a']
+        : ['#18181b', '#52525b', '#a1a1aa', '#e4e4e7'];
+      
+      if (scamChartInstance.options.plugins && scamChartInstance.options.plugins.tooltip) {
+        scamChartInstance.options.plugins.tooltip.backgroundColor = isDark ? '#000000' : '#18181b';
+      }
+      scamChartInstance.update();
+    }
+
     function initChart() {
       if (!window.Chart) return;
       const ctx = document.getElementById('scamVectorsChart');
       if (!ctx) return;
-      new Chart(ctx, {
+      const isDark = document.documentElement.classList.contains('dark');
+      
+      scamChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
           labels: ['Direct Chat', 'Training', 'Phishing', 'Tasks'],
           datasets: [{
             data: [45, 30, 15, 10],
-            backgroundColor: ['#e4e4e7', '#a1a1aa', '#52525b', '#27272a'],
-            borderColor: '#09090b',
+            backgroundColor: isDark
+              ? ['#e4e4e7', '#a1a1aa', '#52525b', '#27272a']
+              : ['#18181b', '#52525b', '#a1a1aa', '#e4e4e7'],
+            borderColor: isDark ? '#09090b' : '#ffffff',
             borderWidth: 2,
             hoverOffset: 0
           }]
@@ -1165,9 +1313,11 @@ REQUESTED CYBER CELL ACTIONS:
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: '#000',
+              backgroundColor: isDark ? '#000000' : '#18181b',
               titleFont: { family: 'monospace', size: 10 },
               bodyFont: { family: 'monospace', size: 10 },
+              titleColor: '#ffffff',
+              bodyColor: '#ffffff',
               cornerRadius: 0,
               padding: 10
             }
@@ -1177,6 +1327,7 @@ REQUESTED CYBER CELL ACTIONS:
     }
 
     window.onload = () => {
+      initTheme();
       initChart();
       handleInputChange();
     };
